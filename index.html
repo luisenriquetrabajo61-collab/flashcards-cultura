@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4338CA">
+<meta name="description" content="Flashcards de cultura general para jóvenes: voltea la tarjeta, aprende y repasa.">
+<title>Cultura General · Flashcards</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧠%3C/text%3E%3C/svg%3E">
+<style>
+/* ---------- Tokens de color (modo claro por defecto) ---------- */
+:root{
+  --bg:#F2F4FB; --surface:#FFFFFF; --ink:#1B2036; --soft:#5A6482; --line:#DDE2F0;
+  --ok:#15803D; --warn:#B45309; --shadow:0 18px 40px -14px rgba(40,50,110,.30);
+  --font:"Avenir Next","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0E1426;--surface:#1A2140;--ink:#EEF1FB;--soft:#9BA6C6;--line:#2C3560;--ok:#4ADE80;--warn:#FBBF24;--shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+}
+:root[data-theme="dark"]{--bg:#0E1426;--surface:#1A2140;--ink:#EEF1FB;--soft:#9BA6C6;--line:#2C3560;--ok:#4ADE80;--warn:#FBBF24;--shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-tap-highlight-color:transparent}
+.app{max-width:520px;min-height:100%;margin:0 auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px}
+
+/* ---------- Cabecera y contador ---------- */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+.icon-btn{font:inherit;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.15rem;cursor:pointer}
+.counter{display:flex;justify-content:space-between;font-weight:700;font-size:.95rem}
+.counter span:last-child{color:var(--soft);font-weight:500}
+.track{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;width:0;border-radius:99px;background:var(--c,#4338CA);transition:width .35s ease}
+
+/* ---------- Tarjeta con giro 3D ---------- */
+.scene{perspective:1200px;--h:clamp(280px,52dvh,400px)}
+.card{position:relative;height:var(--h);transform-style:preserve-3d;cursor:pointer;
+  transition:transform .6s cubic-bezier(.2,.8,.2,1);outline-offset:6px}
+.card.is-flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:22px;
+  border-radius:28px;box-shadow:var(--shadow);overflow:hidden;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden}
+.front{background:var(--surface);border:2px solid var(--line)}
+.back{background:var(--c);color:#fff;transform:rotateY(180deg);border:2px solid var(--c)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px}
+.chip{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem;padding:6px 12px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.chip::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.back .chip{background:rgba(255,255,255,.2);color:#fff}
+.badge{font-size:.85rem;font-weight:700;opacity:0}
+.scene[data-status="sabida"] .badge,.scene[data-status="repasar"] .badge{opacity:1}
+.front .badge{color:var(--warn)}
+.scene[data-status="sabida"] .front .badge{color:var(--ok)}
+.scene[data-status="sabida"] .front{border-color:var(--ok)}
+.scene[data-status="repasar"] .front{border-color:var(--warn)}
+.back .badge{color:#fff}
+.text{font-weight:800;line-height:1.2;letter-spacing:-.01em;font-size:clamp(1.45rem,6.2vw,2rem);overflow-wrap:anywhere;overflow:auto;padding:8px 0}
+.hint{font-size:.85rem;color:var(--soft)}
+.back .hint{color:rgba(255,255,255,.85)}
+
+/* ---------- Botones ---------- */
+.btn{font:inherit;font-weight:700;min-height:50px;padding:12px 16px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:transform .12s ease,border-color .15s}
+.btn:active{transform:scale(.97)}
+.btn:hover{border-color:var(--c,#4338CA)}
+.btn.main{background:var(--c,#4338CA);border-color:var(--c,#4338CA);color:#fff;width:100%}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.icon-btn:focus-visible,.btn:focus-visible,.card:focus-visible{outline:3px solid var(--c,#4338CA)}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--soft);font-size:.9rem}
+.link{font:inherit;background:none;border:none;color:var(--ink);font-weight:700;cursor:pointer;text-decoration:underline;padding:8px 0}
+
+@media (prefers-reduced-motion:reduce){.card,.track i,.btn{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🧠 Cultura General</h1>
+    <button class="icon-btn" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌓</button>
+  </header>
+
+  <div>
+    <div class="counter"><span id="count">Tarjeta 1 de 500</span><span id="stats"></span></div>
+    <div class="track" aria-hidden="true"><i id="bar"></i></div>
+  </div>
+
+  <div class="scene" id="scene">
+    <div class="card" id="card" role="button" tabindex="0" aria-label="Tarjeta. Pulsa para voltearla.">
+      <div class="face front" id="front">
+        <div class="top"><span class="chip" data-cat></span><span class="badge" data-badge></span></div>
+        <div class="text" id="q"></div>
+        <div class="hint">Toca la tarjeta para ver la respuesta</div>
+      </div>
+      <div class="face back" id="back" aria-hidden="true">
+        <div class="top"><span class="chip" data-cat></span><span class="badge" data-badge></span></div>
+        <div class="text" id="a"></div>
+        <div class="hint">Respuesta</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn main" id="flip">Ver respuesta</button>
+
+  <div class="row">
+    <button class="btn warn" id="later">↻ Repasar luego</button>
+    <button class="btn ok" id="known">✓ Ya me la sé</button>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="prev">← Anterior</button>
+    <button class="btn" id="next">Siguiente →</button>
+  </div>
+
+  <div class="foot">
+    <button class="link" id="shuffle">Orden: secuencial</button>
+    <button class="link" id="reset">Reiniciar progreso</button>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   TARJETAS — para añadir más, copia una línea y cambia sus datos.
+   Formato: { id: número único, categoria: "...", pregunta: "...", respuesta: "..." }
+   Categorías con color propio: ver el objeto COLORES más abajo
+   (cualquier otra categoría usará el color por defecto).
+   ====================================================================== */
+const TARJETAS = [
+  { id: 1, categoria: "Historia", pregunta: "¿Quién fue el primer presidente de EE. UU.?", respuesta: "George Washington" },
+  { id: 2, categoria: "Historia", pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
+  { id: 3, categoria: "Historia", pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "Los antiguos egipcios" },
+  { id: 4, categoria: "Historia", pregunta: "¿Qué imperio construyó el Coliseo de Roma?", respuesta: "El Imperio romano" },
+  { id: 5, categoria: "Historia", pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
+  { id: 6, categoria: "Historia", pregunta: "¿Qué guerra se libró entre 1914 y 1918?", respuesta: "La Primera Guerra Mundial" },
+  { id: 7, categoria: "Historia", pregunta: "¿En qué año terminó la Segunda Guerra Mundial?", respuesta: "1945" },
+  { id: 8, categoria: "Historia", pregunta: "¿Quién lideró la independencia de varios países sudamericanos?", respuesta: "Simón Bolívar" },
+  { id: 9, categoria: "Historia", pregunta: "¿Qué civilización construyó Machu Picchu?", respuesta: "Los incas" },
+  { id: 10, categoria: "Historia", pregunta: "¿Qué pueblo construyó Chichén Itzá?", respuesta: "Los mayas" },
+  { id: 11, categoria: "Historia", pregunta: "¿Cuál fue la capital del Imperio azteca?", respuesta: "Tenochtitlan" },
+  { id: 12, categoria: "Historia", pregunta: "¿Quién conquistó el Imperio azteca?", respuesta: "Hernán Cortés" },
+  { id: 13, categoria: "Historia", pregunta: "¿Quién conquistó el Imperio inca?", respuesta: "Francisco Pizarro" },
+  { id: 14, categoria: "Historia", pregunta: "¿Qué faraón es famoso por su tumba llena de tesoros hallada en 1922?", respuesta: "Tutankamón" },
+  { id: 15, categoria: "Historia", pregunta: "¿Qué ciudad griega dio origen a la democracia?", respuesta: "Atenas" },
+  { id: 16, categoria: "Historia", pregunta: "¿Quién fue el conquistador macedonio que creó un gran imperio?", respuesta: "Alejandro Magno" },
+  { id: 17, categoria: "Historia", pregunta: "¿Qué emperador francés fue derrotado en Waterloo?", respuesta: "Napoleón Bonaparte" },
+  { id: 18, categoria: "Historia", pregunta: "¿En qué año comenzó la Revolución francesa?", respuesta: "1789" },
+  { id: 19, categoria: "Historia", pregunta: "¿Qué enfermedad mató a millones en Europa en el siglo XIV?", respuesta: "La peste negra" },
+  { id: 20, categoria: "Historia", pregunta: "¿Qué inventó Gutenberg hacia 1450?", respuesta: "La imprenta de tipos móviles" },
+  { id: 21, categoria: "Historia", pregunta: "¿Qué movimiento cultural renació en Italia en el siglo XV?", respuesta: "El Renacimiento" },
+  { id: 22, categoria: "Historia", pregunta: "¿Quién lideró la resistencia pacífica por la independencia de la India?", respuesta: "Mahatma Gandhi" },
+  { id: 23, categoria: "Historia", pregunta: "¿Quién luchó contra el apartheid y fue presidente de Sudáfrica?", respuesta: "Nelson Mandela" },
+  { id: 24, categoria: "Historia", pregunta: "¿Quién dijo «Tengo un sueño»?", respuesta: "Martin Luther King Jr." },
+  { id: 25, categoria: "Historia", pregunta: "¿En qué año llegó el ser humano a la Luna?", respuesta: "1969" },
+  { id: 26, categoria: "Historia", pregunta: "¿Quién fue el primer ser humano en pisar la Luna?", respuesta: "Neil Armstrong" },
+  { id: 27, categoria: "Historia", pregunta: "¿Quién fue el primer humano en viajar al espacio?", respuesta: "Yuri Gagarin" },
+  { id: 28, categoria: "Historia", pregunta: "¿Qué país lanzó el primer satélite artificial, el Sputnik?", respuesta: "La Unión Soviética" },
+  { id: 29, categoria: "Historia", pregunta: "¿Qué barco se hundió en 1912 tras chocar con un iceberg?", respuesta: "El Titanic" },
+  { id: 30, categoria: "Historia", pregunta: "¿Qué era la Guerra Fría?", respuesta: "La tensión entre EE. UU. y la URSS tras la Segunda Guerra Mundial" },
+  { id: 31, categoria: "Historia", pregunta: "¿En qué año se independizó México de España?", respuesta: "1821" },
+  { id: 32, categoria: "Historia", pregunta: "¿Quién liberó Argentina, Chile y Perú?", respuesta: "José de San Martín" },
+  { id: 33, categoria: "Historia", pregunta: "¿Qué día se celebra la independencia de EE. UU.?", respuesta: "El 4 de julio" },
+  { id: 34, categoria: "Historia", pregunta: "¿Qué pueblo de Mesopotamia creó la escritura cuneiforme?", respuesta: "Los sumerios" },
+  { id: 35, categoria: "Historia", pregunta: "¿Qué pueblo del norte de Europa navegaba en drakkars?", respuesta: "Los vikingos" },
+  { id: 36, categoria: "Historia", pregunta: "¿Qué dinastía china construyó gran parte de la Gran Muralla actual?", respuesta: "La dinastía Ming" },
+  { id: 37, categoria: "Historia", pregunta: "¿Qué heroína francesa lideró tropas en la Guerra de los Cien Años?", respuesta: "Juana de Arco" },
+  { id: 38, categoria: "Historia", pregunta: "¿Qué científica ganó dos premios Nobel por estudiar la radiactividad?", respuesta: "Marie Curie" },
+  { id: 39, categoria: "Historia", pregunta: "¿Quién desarrolló la teoría de la relatividad?", respuesta: "Albert Einstein" },
+  { id: 40, categoria: "Historia", pregunta: "¿Quién formuló la ley de la gravitación universal?", respuesta: "Isaac Newton" },
+  { id: 41, categoria: "Historia", pregunta: "¿Quién propuso la teoría de la evolución por selección natural?", respuesta: "Charles Darwin" },
+  { id: 42, categoria: "Historia", pregunta: "¿Qué astrónomo defendió que la Tierra gira alrededor del Sol y fue juzgado por ello?", respuesta: "Galileo Galilei" },
+  { id: 43, categoria: "Historia", pregunta: "¿Quién patentó la bombilla eléctrica comercial?", respuesta: "Thomas Edison" },
+  { id: 44, categoria: "Historia", pregunta: "¿Quién patentó el teléfono?", respuesta: "Alexander Graham Bell" },
+  { id: 45, categoria: "Historia", pregunta: "¿Qué hermanos hicieron el primer vuelo en avión motorizado en 1903?", respuesta: "Los hermanos Wright" },
+  { id: 46, categoria: "Historia", pregunta: "¿En qué año comenzó la pandemia de COVID-19?", respuesta: "2019" },
+  { id: 47, categoria: "Historia", pregunta: "¿Qué organización internacional se fundó en 1945 para mantener la paz?", respuesta: "La ONU" },
+  { id: 48, categoria: "Historia", pregunta: "¿Dónde se celebraron los primeros Juegos Olímpicos modernos, en 1896?", respuesta: "Atenas (Grecia)" },
+  { id: 49, categoria: "Historia", pregunta: "¿Qué ciudad romana destruyó el volcán Vesubio en el año 79?", respuesta: "Pompeya" },
+  { id: 50, categoria: "Historia", pregunta: "¿Qué general cartaginés cruzó los Alpes con elefantes?", respuesta: "Aníbal" },
+  { id: 51, categoria: "Historia", pregunta: "¿Quién fue la última reina del antiguo Egipto?", respuesta: "Cleopatra" },
+  { id: 52, categoria: "Historia", pregunta: "¿Qué país gobernaban los zares hasta 1917?", respuesta: "Rusia" },
+  { id: 53, categoria: "Historia", pregunta: "¿Quién completó la primera vuelta al mundo tras la muerte de Magallanes?", respuesta: "Juan Sebastián Elcano" },
+  { id: 54, categoria: "Historia", pregunta: "¿Qué guerra dividió a EE. UU. entre Norte y Sur en el siglo XIX?", respuesta: "La Guerra de Secesión" },
+  { id: 55, categoria: "Historia", pregunta: "¿Qué presidente de EE. UU. abolió la esclavitud?", respuesta: "Abraham Lincoln" },
+  { id: 56, categoria: "Historia", pregunta: "¿Qué revolución trajo las máquinas de vapor y las fábricas desde 1760?", respuesta: "La Revolución Industrial" },
+  { id: 57, categoria: "Historia", pregunta: "¿Qué civilización antigua construyó el Partenón?", respuesta: "Los antiguos griegos" },
+  { id: 58, categoria: "Historia", pregunta: "¿Quién lideró la Revolución cubana de 1959?", respuesta: "Fidel Castro" },
+  { id: 59, categoria: "Historia", pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "Augusto" },
+  { id: 60, categoria: "Geografía", pregunta: "¿Cuál es el río más caudaloso del mundo?", respuesta: "El Amazonas" },
+  { id: 61, categoria: "Geografía", pregunta: "¿Cuál es el río más largo de África?", respuesta: "El Nilo" },
+  { id: 62, categoria: "Geografía", pregunta: "¿Cuál es la montaña más alta del mundo?", respuesta: "El Everest" },
+  { id: 63, categoria: "Geografía", pregunta: "¿Cuál es el océano más grande?", respuesta: "El océano Pacífico" },
+  { id: 64, categoria: "Geografía", pregunta: "¿Cuál es el continente más grande?", respuesta: "Asia" },
+  { id: 65, categoria: "Geografía", pregunta: "¿Cuál es el continente más pequeño?", respuesta: "Oceanía" },
+  { id: 66, categoria: "Geografía", pregunta: "¿Cuál es el desierto cálido más grande del mundo?", respuesta: "El Sahara" },
+  { id: 67, categoria: "Geografía", pregunta: "¿Cuál es el país más grande del mundo por superficie?", respuesta: "Rusia" },
+  { id: 68, categoria: "Geografía", pregunta: "¿Qué dos países tienen más de 1.400 millones de habitantes?", respuesta: "India y China" },
+  { id: 69, categoria: "Geografía", pregunta: "¿Cuál es el país más pequeño del mundo?", respuesta: "El Vaticano" },
+  { id: 70, categoria: "Geografía", pregunta: "¿En qué continente está Egipto?", respuesta: "África" },
+  { id: 71, categoria: "Geografía", pregunta: "¿Qué cordillera recorre Sudamérica de norte a sur?", respuesta: "Los Andes" },
+  { id: 72, categoria: "Geografía", pregunta: "¿Qué lago, compartido por Perú y Bolivia, es famoso por su gran altura?", respuesta: "El Titicaca" },
+  { id: 73, categoria: "Geografía", pregunta: "¿Qué cascadas famosas están entre Argentina y Brasil?", respuesta: "Las cataratas del Iguazú" },
+  { id: 74, categoria: "Geografía", pregunta: "¿Qué mar separa Europa de África?", respuesta: "El mar Mediterráneo" },
+  { id: 75, categoria: "Geografía", pregunta: "¿Cuál es la isla más grande del mundo?", respuesta: "Groenlandia" },
+  { id: 76, categoria: "Geografía", pregunta: "¿Qué país tiene forma de bota?", respuesta: "Italia" },
+  { id: 77, categoria: "Geografía", pregunta: "¿Cuál es el país más grande de Sudamérica?", respuesta: "Brasil" },
+  { id: 78, categoria: "Geografía", pregunta: "¿Qué estrecho separa España de Marruecos?", respuesta: "El estrecho de Gibraltar" },
+  { id: 79, categoria: "Geografía", pregunta: "¿Qué canal une el Atlántico y el Pacífico?", respuesta: "El canal de Panamá" },
+  { id: 80, categoria: "Geografía", pregunta: "¿Qué canal conecta el Mediterráneo con el mar Rojo?", respuesta: "El canal de Suez" },
+  { id: 81, categoria: "Geografía", pregunta: "¿Cuál es el punto más profundo de los océanos?", respuesta: "La fosa de las Marianas" },
+  { id: 82, categoria: "Geografía", pregunta: "¿Qué desierto chileno es uno de los más secos del mundo?", respuesta: "El desierto de Atacama" },
+  { id: 83, categoria: "Geografía", pregunta: "¿Qué continente es helado y casi deshabitado?", respuesta: "La Antártida" },
+  { id: 84, categoria: "Geografía", pregunta: "¿Qué río atraviesa París?", respuesta: "El Sena" },
+  { id: 85, categoria: "Geografía", pregunta: "¿Qué río atraviesa Londres?", respuesta: "El Támesis" },
+  { id: 86, categoria: "Geografía", pregunta: "¿Qué país es famoso por sus fiordos?", respuesta: "Noruega" },
+  { id: 87, categoria: "Geografía", pregunta: "¿En qué país está el monte Fuji?", respuesta: "Japón" },
+  { id: 88, categoria: "Geografía", pregunta: "¿En qué país está el Taj Mahal?", respuesta: "India" },
+  { id: 89, categoria: "Geografía", pregunta: "¿En qué país está la Torre Eiffel?", respuesta: "Francia" },
+  { id: 90, categoria: "Geografía", pregunta: "¿En qué ciudad está el Cristo Redentor?", respuesta: "Río de Janeiro" },
+  { id: 91, categoria: "Geografía", pregunta: "¿En qué país está el Coliseo?", respuesta: "Italia" },
+  { id: 92, categoria: "Geografía", pregunta: "¿En qué país están las pirámides de Giza?", respuesta: "Egipto" },
+  { id: 93, categoria: "Geografía", pregunta: "¿En qué país está Machu Picchu?", respuesta: "Perú" },
+  { id: 94, categoria: "Geografía", pregunta: "¿Qué país está formado por más de 17.000 islas?", respuesta: "Indonesia" },
+  { id: 95, categoria: "Geografía", pregunta: "¿Qué país tiene más lagos del mundo?", respuesta: "Canadá" },
+  { id: 96, categoria: "Geografía", pregunta: "¿Qué línea imaginaria divide la Tierra en hemisferio norte y sur?", respuesta: "El ecuador" },
+  { id: 97, categoria: "Geografía", pregunta: "¿Qué estado de EE. UU. está formado por islas del Pacífico?", respuesta: "Hawái" },
+  { id: 98, categoria: "Geografía", pregunta: "¿Cuál es la lengua nativa más hablada del mundo?", respuesta: "El chino mandarín" },
+  { id: 99, categoria: "Geografía", pregunta: "¿Qué cordillera separa Europa y Asia?", respuesta: "Los Urales" },
+  { id: 100, categoria: "Geografía", pregunta: "¿Qué símbolo aparece en la bandera de Canadá?", respuesta: "La hoja de arce" },
+  { id: 101, categoria: "Geografía", pregunta: "¿Qué mar es famoso por su alta salinidad y porque flotas en él?", respuesta: "El mar Muerto" },
+  { id: 102, categoria: "Geografía", pregunta: "¿Cuál es la isla más grande del Caribe?", respuesta: "Cuba" },
+  { id: 103, categoria: "Geografía", pregunta: "¿Qué ciudad italiana es famosa por sus canales?", respuesta: "Venecia" },
+  { id: 104, categoria: "Geografía", pregunta: "¿Cuál es el estado más grande de EE. UU.?", respuesta: "Alaska" },
+  { id: 105, categoria: "Geografía", pregunta: "¿Qué país tiene forma larga y estrecha en el oeste de Sudamérica?", respuesta: "Chile" },
+  { id: 106, categoria: "Geografía", pregunta: "¿Cuántos océanos se reconocen habitualmente?", respuesta: "Cinco" },
+  { id: 107, categoria: "Geografía", pregunta: "¿Qué río pasa por El Cairo?", respuesta: "El Nilo" },
+  { id: 108, categoria: "Geografía", pregunta: "¿Cuál es el país más poblado de África?", respuesta: "Nigeria" },
+  { id: 109, categoria: "Geografía", pregunta: "¿Cuál es la ciudad más grande de Estados Unidos?", respuesta: "Nueva York" },
+  { id: 110, categoria: "Ciencia", pregunta: "¿Qué gas necesitamos para respirar?", respuesta: "Oxígeno" },
+  { id: 111, categoria: "Ciencia", pregunta: "¿Qué gas absorben las plantas en la fotosíntesis?", respuesta: "Dióxido de carbono (CO₂)" },
+  { id: 112, categoria: "Ciencia", pregunta: "¿Cuál es la fórmula química del agua?", respuesta: "H₂O" },
+  { id: 113, categoria: "Ciencia", pregunta: "¿Cuál es el planeta más grande del sistema solar?", respuesta: "Júpiter" },
+  { id: 114, categoria: "Ciencia", pregunta: "¿Cuál es el planeta rojo?", respuesta: "Marte" },
+  { id: 115, categoria: "Ciencia", pregunta: "¿Cuál es la estrella más cercana a la Tierra?", respuesta: "El Sol" },
+  { id: 116, categoria: "Ciencia", pregunta: "¿Qué satélite natural orbita la Tierra?", respuesta: "La Luna" },
+  { id: 117, categoria: "Ciencia", pregunta: "¿Cuánto tarda la Tierra en dar una vuelta al Sol?", respuesta: "Un año (365 días)" },
+  { id: 118, categoria: "Ciencia", pregunta: "¿Cuánto tarda la Tierra en girar sobre sí misma?", respuesta: "Un día (24 horas)" },
+  { id: 119, categoria: "Ciencia", pregunta: "¿Qué es la Vía Láctea?", respuesta: "La galaxia donde está nuestro sistema solar" },
+  { id: 120, categoria: "Ciencia", pregunta: "¿Qué es un agujero negro?", respuesta: "Una zona con tanta gravedad que ni la luz escapa" },
+  { id: 121, categoria: "Ciencia", pregunta: "¿Qué fuerza nos mantiene pegados al suelo?", respuesta: "La gravedad" },
+  { id: 122, categoria: "Ciencia", pregunta: "¿Qué es un eclipse solar?", respuesta: "Cuando la Luna se interpone entre el Sol y la Tierra" },
+  { id: 123, categoria: "Ciencia", pregunta: "¿Cuál es el animal terrestre más grande?", respuesta: "El elefante africano" },
+  { id: 124, categoria: "Ciencia", pregunta: "¿Cuál es el animal más grande del planeta?", respuesta: "La ballena azul" },
+  { id: 125, categoria: "Ciencia", pregunta: "¿Cuál es el animal terrestre más rápido?", respuesta: "El guepardo" },
+  { id: 126, categoria: "Ciencia", pregunta: "¿Cuál es el ave más grande del mundo?", respuesta: "El avestruz" },
+  { id: 127, categoria: "Ciencia", pregunta: "¿Qué mamífero puede volar?", respuesta: "El murciélago" },
+  { id: 128, categoria: "Ciencia", pregunta: "¿Cuántos corazones tiene un pulpo?", respuesta: "Tres" },
+  { id: 129, categoria: "Ciencia", pregunta: "¿Cómo se llaman los animales que solo comen plantas?", respuesta: "Herbívoros" },
+  { id: 130, categoria: "Ciencia", pregunta: "¿Cómo se llaman los animales que comen carne?", respuesta: "Carnívoros" },
+  { id: 131, categoria: "Ciencia", pregunta: "¿Cómo se llaman los animales que comen de todo?", respuesta: "Omnívoros" },
+  { id: 132, categoria: "Ciencia", pregunta: "¿Qué es la metamorfosis de la mariposa?", respuesta: "El cambio de oruga a mariposa adulta" },
+  { id: 133, categoria: "Ciencia", pregunta: "¿Qué parte de la planta absorbe agua del suelo?", respuesta: "La raíz" },
+  { id: 134, categoria: "Ciencia", pregunta: "¿Qué pigmento da el color verde a las plantas?", respuesta: "La clorofila" },
+  { id: 135, categoria: "Ciencia", pregunta: "¿Qué estado de la materia tiene forma y volumen definidos?", respuesta: "El sólido" },
+  { id: 136, categoria: "Ciencia", pregunta: "¿A cuántos °C hierve el agua al nivel del mar?", respuesta: "100 °C" },
+  { id: 137, categoria: "Ciencia", pregunta: "¿A cuántos °C se congela el agua?", respuesta: "0 °C" },
+  { id: 138, categoria: "Ciencia", pregunta: "¿Quién descubrió la penicilina?", respuesta: "Alexander Fleming" },
+  { id: 139, categoria: "Ciencia", pregunta: "¿Qué es el ADN?", respuesta: "La molécula que guarda la información genética" },
+  { id: 140, categoria: "Ciencia", pregunta: "¿Qué capa de la atmósfera nos protege de los rayos UV?", respuesta: "La capa de ozono" },
+  { id: 141, categoria: "Ciencia", pregunta: "¿Qué provoca las mareas?", respuesta: "La atracción gravitatoria de la Luna y el Sol" },
+  { id: 142, categoria: "Ciencia", pregunta: "¿Qué es un terremoto?", respuesta: "Un temblor de la corteza terrestre" },
+  { id: 143, categoria: "Ciencia", pregunta: "¿Cómo se llama el punto de la superficie justo sobre el origen de un sismo?", respuesta: "Epicentro" },
+  { id: 144, categoria: "Ciencia", pregunta: "¿Cuántos colores se distinguen en el arcoíris?", respuesta: "Siete" },
+  { id: 145, categoria: "Ciencia", pregunta: "¿Qué es más rápido, la luz o el sonido?", respuesta: "La luz" },
+  { id: 146, categoria: "Ciencia", pregunta: "¿Qué es el cambio climático?", respuesta: "El aumento sostenido de la temperatura global por la actividad humana" },
+  { id: 147, categoria: "Ciencia", pregunta: "¿Qué gas es el principal responsable del efecto invernadero?", respuesta: "El dióxido de carbono" },
+  { id: 148, categoria: "Ciencia", pregunta: "¿Qué energías son renovables?", respuesta: "La solar, la eólica y la hidráulica, entre otras" },
+  { id: 149, categoria: "Ciencia", pregunta: "¿Cuántas patas tiene una araña?", respuesta: "Ocho" },
+  { id: 150, categoria: "Ciencia", pregunta: "¿Cuántas patas tiene un insecto?", respuesta: "Seis" },
+  { id: 151, categoria: "Ciencia", pregunta: "¿Qué animal australiano es un marsupial que salta?", respuesta: "El canguro" },
+  { id: 152, categoria: "Ciencia", pregunta: "¿Qué mamífero australiano pone huevos?", respuesta: "El ornitorrinco" },
+  { id: 153, categoria: "Ciencia", pregunta: "¿Cuáles son las fases del ciclo del agua?", respuesta: "Evaporación, condensación, precipitación y recogida" },
+  { id: 154, categoria: "Ciencia", pregunta: "¿Qué es un ecosistema?", respuesta: "Un conjunto de seres vivos y su entorno" },
+  { id: 155, categoria: "Ciencia", pregunta: "¿Qué es una especie en peligro de extinción?", respuesta: "La que corre riesgo de desaparecer" },
+  { id: 156, categoria: "Ciencia", pregunta: "¿Qué es la célula?", respuesta: "La unidad básica de todos los seres vivos" },
+  { id: 157, categoria: "Ciencia", pregunta: "¿Qué es un volcán?", respuesta: "Una abertura de la corteza por donde sale magma" },
+  { id: 158, categoria: "Ciencia", pregunta: "¿Dónde está el cinturón de asteroides?", respuesta: "Entre Marte y Júpiter" },
+  { id: 159, categoria: "Ciencia", pregunta: "¿Cuántos planetas tiene el sistema solar?", respuesta: "Ocho" },
+  { id: 160, categoria: "Ciencia", pregunta: "¿Qué planeta tiene anillos muy visibles?", respuesta: "Saturno" },
+  { id: 161, categoria: "Ciencia", pregunta: "¿Qué es un cometa?", respuesta: "Un cuerpo de hielo y polvo que deja una cola al acercarse al Sol" },
+  { id: 162, categoria: "Ciencia", pregunta: "¿Qué es la biodiversidad?", respuesta: "La variedad de seres vivos del planeta" },
+  { id: 163, categoria: "Ciencia", pregunta: "¿Qué animal cambia de color para camuflarse?", respuesta: "El camaleón" },
+  { id: 164, categoria: "Ciencia", pregunta: "¿Qué metal es líquido a temperatura ambiente?", respuesta: "El mercurio" },
+  { id: 165, categoria: "Ciencia", pregunta: "¿Qué mide un termómetro?", respuesta: "La temperatura" },
+  { id: 166, categoria: "Ciencia", pregunta: "¿Qué mide un sismógrafo?", respuesta: "Las vibraciones de la Tierra" },
+  { id: 167, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 1 contando desde el Sol?", respuesta: "Mercurio" },
+  { id: 168, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 2 contando desde el Sol?", respuesta: "Venus" },
+  { id: 169, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 3 contando desde el Sol?", respuesta: "Tierra" },
+  { id: 170, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 4 contando desde el Sol?", respuesta: "Marte" },
+  { id: 171, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 5 contando desde el Sol?", respuesta: "Júpiter" },
+  { id: 172, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 6 contando desde el Sol?", respuesta: "Saturno" },
+  { id: 173, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 7 contando desde el Sol?", respuesta: "Urano" },
+  { id: 174, categoria: "Ciencia", pregunta: "¿Qué planeta es el n.º 8 contando desde el Sol?", respuesta: "Neptuno" },
+  { id: 175, categoria: "Arte y música", pregunta: "¿Quién pintó la Mona Lisa?", respuesta: "Leonardo da Vinci" },
+  { id: 176, categoria: "Arte y música", pregunta: "¿Quién pintó La noche estrellada?", respuesta: "Vincent van Gogh" },
+  { id: 177, categoria: "Arte y música", pregunta: "¿Quién pintó el Guernica?", respuesta: "Pablo Picasso" },
+  { id: 178, categoria: "Arte y música", pregunta: "¿Quién pintó el techo de la Capilla Sixtina?", respuesta: "Miguel Ángel" },
+  { id: 179, categoria: "Arte y música", pregunta: "¿Quién pintó Las Meninas?", respuesta: "Diego Velázquez" },
+  { id: 180, categoria: "Arte y música", pregunta: "¿Qué artista pintó relojes derretidos en La persistencia de la memoria?", respuesta: "Salvador Dalí" },
+  { id: 181, categoria: "Arte y música", pregunta: "¿Qué pintora mexicana es famosa por sus autorretratos?", respuesta: "Frida Kahlo" },
+  { id: 182, categoria: "Arte y música", pregunta: "¿En qué museo de París está la Mona Lisa?", respuesta: "El Louvre" },
+  { id: 183, categoria: "Arte y música", pregunta: "¿Qué famoso museo de arte está en Madrid?", respuesta: "El Prado" },
+  { id: 184, categoria: "Arte y música", pregunta: "¿Quién escribió Don Quijote de la Mancha?", respuesta: "Miguel de Cervantes" },
+  { id: 185, categoria: "Arte y música", pregunta: "¿Quién escribió Cien años de soledad?", respuesta: "Gabriel García Márquez" },
+  { id: 186, categoria: "Arte y música", pregunta: "¿Quién escribió Romeo y Julieta?", respuesta: "William Shakespeare" },
+  { id: 187, categoria: "Arte y música", pregunta: "¿Quién escribió El principito?", respuesta: "Antoine de Saint-Exupéry" },
+  { id: 188, categoria: "Arte y música", pregunta: "¿Quién escribió Harry Potter?", respuesta: "J. K. Rowling" },
+  { id: 189, categoria: "Arte y música", pregunta: "¿Quién escribió El Señor de los Anillos?", respuesta: "J. R. R. Tolkien" },
+  { id: 190, categoria: "Arte y música", pregunta: "¿Quién escribió Los juegos del hambre?", respuesta: "Suzanne Collins" },
+  { id: 191, categoria: "Arte y música", pregunta: "¿Quién escribió Frankenstein?", respuesta: "Mary Shelley" },
+  { id: 192, categoria: "Arte y música", pregunta: "¿Quién creó a Sherlock Holmes?", respuesta: "Arthur Conan Doyle" },
+  { id: 193, categoria: "Arte y música", pregunta: "¿Quién escribió Veinte mil leguas de viaje submarino?", respuesta: "Julio Verne" },
+  { id: 194, categoria: "Arte y música", pregunta: "¿Quién escribió Alicia en el país de las maravillas?", respuesta: "Lewis Carroll" },
+  { id: 195, categoria: "Arte y música", pregunta: "¿Quién escribió Rayuela?", respuesta: "Julio Cortázar" },
+  { id: 196, categoria: "Arte y música", pregunta: "¿Quién escribió Pedro Páramo?", respuesta: "Juan Rulfo" },
+  { id: 197, categoria: "Arte y música", pregunta: "¿Quién escribió Platero y yo?", respuesta: "Juan Ramón Jiménez" },
+  { id: 198, categoria: "Arte y música", pregunta: "¿Qué poeta chileno escribió Veinte poemas de amor y una canción desesperada?", respuesta: "Pablo Neruda" },
+  { id: 199, categoria: "Arte y música", pregunta: "¿Qué escritor argentino escribió El Aleph?", respuesta: "Jorge Luis Borges" },
+  { id: 200, categoria: "Arte y música", pregunta: "¿Quién compuso la Novena Sinfonía?", respuesta: "Ludwig van Beethoven" },
+  { id: 201, categoria: "Arte y música", pregunta: "¿Quién compuso Las cuatro estaciones?", respuesta: "Antonio Vivaldi" },
+  { id: 202, categoria: "Arte y música", pregunta: "¿Qué niño prodigio compuso La flauta mágica?", respuesta: "Wolfgang Amadeus Mozart" },
+  { id: 203, categoria: "Arte y música", pregunta: "¿Quién compuso El lago de los cisnes?", respuesta: "Piotr Chaikovski" },
+  { id: 204, categoria: "Arte y música", pregunta: "¿Qué grupo británico cantó «Hey Jude»?", respuesta: "The Beatles" },
+  { id: 205, categoria: "Arte y música", pregunta: "¿Quién es conocido como el «Rey del Pop»?", respuesta: "Michael Jackson" },
+  { id: 206, categoria: "Arte y música", pregunta: "¿Qué cantante colombiana interpretó «Waka Waka»?", respuesta: "Shakira" },
+  { id: 207, categoria: "Arte y música", pregunta: "¿Qué género musical nació en Jamaica con artistas como Bob Marley?", respuesta: "El reggae" },
+  { id: 208, categoria: "Arte y música", pregunta: "¿Qué género musical nació en Nueva Orleans y destaca por la improvisación?", respuesta: "El jazz" },
+  { id: 209, categoria: "Arte y música", pregunta: "¿De qué región es originario el tango?", respuesta: "Del Río de la Plata (Argentina y Uruguay)" },
+  { id: 210, categoria: "Arte y música", pregunta: "¿De qué país es originaria la samba?", respuesta: "Brasil" },
+  { id: 211, categoria: "Arte y música", pregunta: "¿Cuántas cuerdas tiene una guitarra clásica?", respuesta: "Seis" },
+  { id: 212, categoria: "Arte y música", pregunta: "¿Cuántas notas musicales hay?", respuesta: "Siete (do, re, mi, fa, sol, la, si)" },
+  { id: 213, categoria: "Arte y música", pregunta: "¿Qué instrumento tiene teclas blancas y negras?", respuesta: "El piano" },
+  { id: 214, categoria: "Arte y música", pregunta: "¿Qué estilo artístico usó pinceladas rápidas para captar la luz?", respuesta: "El impresionismo" },
+  { id: 215, categoria: "Arte y música", pregunta: "¿Qué estilo artístico muestra los objetos desde varios ángulos con formas geométricas?", respuesta: "El cubismo" },
+  { id: 216, categoria: "Arte y música", pregunta: "¿Qué película animada tiene a Simba como protagonista?", respuesta: "El rey león" },
+  { id: 217, categoria: "Arte y música", pregunta: "¿Qué estudio creó a Mickey Mouse?", respuesta: "Disney" },
+  { id: 218, categoria: "Arte y música", pregunta: "¿Qué director dirigió Tiburón y E. T.?", respuesta: "Steven Spielberg" },
+  { id: 219, categoria: "Arte y música", pregunta: "¿Cuál fue el primer largometraje animado de Disney?", respuesta: "Blancanieves y los siete enanitos" },
+  { id: 220, categoria: "Arte y música", pregunta: "¿Qué anime narra las aventuras de Luffy y su tripulación pirata?", respuesta: "One Piece" },
+  { id: 221, categoria: "Arte y música", pregunta: "¿Qué cantante puertorriqueño popularizó «Despacito»?", respuesta: "Luis Fonsi" },
+  { id: 222, categoria: "Arte y música", pregunta: "¿Qué escultor creó el David de mármol?", respuesta: "Miguel Ángel" },
+  { id: 223, categoria: "Arte y música", pregunta: "¿Qué artista pop es famoso por sus latas de sopa Campbell?", respuesta: "Andy Warhol" },
+  { id: 224, categoria: "Cuerpo y salud", pregunta: "¿Cuántos huesos tiene un adulto?", respuesta: "206" },
+  { id: 225, categoria: "Cuerpo y salud", pregunta: "¿Cuál es el órgano más grande del cuerpo?", respuesta: "La piel" },
+  { id: 226, categoria: "Cuerpo y salud", pregunta: "¿Qué órgano bombea la sangre?", respuesta: "El corazón" },
+  { id: 227, categoria: "Cuerpo y salud", pregunta: "¿Qué órgano usamos para pensar?", respuesta: "El cerebro" },
+  { id: 228, categoria: "Cuerpo y salud", pregunta: "¿Cuál es el hueso más largo del cuerpo?", respuesta: "El fémur" },
+  { id: 229, categoria: "Cuerpo y salud", pregunta: "¿Qué órganos filtran la sangre y producen la orina?", respuesta: "Los riñones" },
+  { id: 230, categoria: "Cuerpo y salud", pregunta: "¿Qué órganos nos permiten respirar?", respuesta: "Los pulmones" },
+  { id: 231, categoria: "Cuerpo y salud", pregunta: "¿Qué vitamina produce la piel con el sol?", respuesta: "La vitamina D" },
+  { id: 232, categoria: "Cuerpo y salud", pregunta: "¿Qué vitamina abunda en los cítricos?", respuesta: "La vitamina C" },
+  { id: 233, categoria: "Cuerpo y salud", pregunta: "¿Cuántas horas debe dormir un adolescente, aproximadamente?", respuesta: "Entre 8 y 10 horas" },
+  { id: 234, categoria: "Cuerpo y salud", pregunta: "¿Qué mineral fortalece los huesos y abunda en la leche?", respuesta: "El calcio" },
+  { id: 235, categoria: "Cuerpo y salud", pregunta: "¿Qué transportan los glóbulos rojos?", respuesta: "Oxígeno" },
+  { id: 236, categoria: "Cuerpo y salud", pregunta: "¿Qué células defienden al cuerpo de las infecciones?", respuesta: "Los glóbulos blancos" },
+  { id: 237, categoria: "Cuerpo y salud", pregunta: "¿Cuántos dientes tiene un adulto con muelas del juicio?", respuesta: "32" },
+  { id: 238, categoria: "Cuerpo y salud", pregunta: "¿Cuáles son los cinco sentidos?", respuesta: "Vista, oído, olfato, gusto y tacto" },
+  { id: 239, categoria: "Cuerpo y salud", pregunta: "¿Qué hace el sistema inmunitario?", respuesta: "Defiende al cuerpo de enfermedades" },
+  { id: 240, categoria: "Cuerpo y salud", pregunta: "¿Para qué sirven las vacunas?", respuesta: "Entrenan al sistema inmunitario contra enfermedades" },
+  { id: 241, categoria: "Cuerpo y salud", pregunta: "¿Cuántas cavidades tiene el corazón?", respuesta: "Cuatro" },
+  { id: 242, categoria: "Cuerpo y salud", pregunta: "¿Qué hormona se asocia con el estrés?", respuesta: "El cortisol" },
+  { id: 243, categoria: "Cuerpo y salud", pregunta: "¿Por qué es importante lavarse las manos?", respuesta: "Elimina gérmenes y previene enfermedades" },
+  { id: 244, categoria: "Cuerpo y salud", pregunta: "¿Qué es el IMC?", respuesta: "Una medida que relaciona peso y estatura" },
+  { id: 245, categoria: "Cuerpo y salud", pregunta: "¿Qué músculo ayuda a respirar y separa el tórax del abdomen?", respuesta: "El diafragma" },
+  { id: 246, categoria: "Cuerpo y salud", pregunta: "¿Qué hueso protege el cerebro?", respuesta: "El cráneo" },
+  { id: 247, categoria: "Cuerpo y salud", pregunta: "¿Qué es la glucosa?", respuesta: "El azúcar que el cuerpo usa como energía" },
+  { id: 248, categoria: "Cuerpo y salud", pregunta: "¿Cuánta agua se recomienda beber al día, aproximadamente?", respuesta: "Entre 1,5 y 2 litros" },
+  { id: 249, categoria: "Cuerpo y salud", pregunta: "¿Qué es una dieta equilibrada?", respuesta: "La que combina frutas, verduras, proteínas, cereales y grasas sanas" },
+  { id: 250, categoria: "Cuerpo y salud", pregunta: "¿Cómo se llama la capa externa de la piel?", respuesta: "Epidermis" },
+  { id: 251, categoria: "Cuerpo y salud", pregunta: "¿Qué es la pubertad?", respuesta: "La etapa en la que el cuerpo pasa de niño a adulto" },
+  { id: 252, categoria: "Cuerpo y salud", pregunta: "¿Por qué conviene limitar las pantallas antes de dormir?", respuesta: "Su luz dificulta conciliar el sueño" },
+  { id: 253, categoria: "Cuerpo y salud", pregunta: "¿Qué ayuda a cuidar la salud mental?", respuesta: "Dormir bien, moverse, hablar de lo que sientes y pedir ayuda si la necesitas" },
+  { id: 254, categoria: "Cuerpo y salud", pregunta: "¿Qué órgano produce la insulina?", respuesta: "El páncreas" },
+  { id: 255, categoria: "Cuerpo y salud", pregunta: "¿Qué órgano produce la bilis?", respuesta: "El hígado" },
+  { id: 256, categoria: "Deportes", pregunta: "¿Cada cuántos años se celebran los Juegos Olímpicos de verano?", respuesta: "Cada cuatro años" },
+  { id: 257, categoria: "Deportes", pregunta: "¿Cada cuántos años se juega el Mundial de fútbol masculino?", respuesta: "Cada cuatro años" },
+  { id: 258, categoria: "Deportes", pregunta: "¿Cuántos jugadores tiene un equipo de fútbol en el campo?", respuesta: "Once" },
+  { id: 259, categoria: "Deportes", pregunta: "¿Cuántos jugadores de baloncesto juegan a la vez por equipo?", respuesta: "Cinco" },
+  { id: 260, categoria: "Deportes", pregunta: "¿Qué país ha ganado más Mundiales de fútbol masculino?", respuesta: "Brasil (cinco)" },
+  { id: 261, categoria: "Deportes", pregunta: "¿Qué selección ganó el Mundial de Catar 2022?", respuesta: "Argentina" },
+  { id: 262, categoria: "Deportes", pregunta: "¿Qué futbolista argentino ganó ocho Balones de Oro?", respuesta: "Lionel Messi" },
+  { id: 263, categoria: "Deportes", pregunta: "¿Qué futbolista portugués es famoso por su celebración «Siuuu»?", respuesta: "Cristiano Ronaldo" },
+  { id: 264, categoria: "Deportes", pregunta: "¿Qué velocista jamaicano tiene el récord mundial de los 100 m?", respuesta: "Usain Bolt" },
+  { id: 265, categoria: "Deportes", pregunta: "¿Qué nadador estadounidense tiene más medallas olímpicas?", respuesta: "Michael Phelps" },
+  { id: 266, categoria: "Deportes", pregunta: "¿Qué gimnasta estadounidense es una de las más premiadas de la historia?", respuesta: "Simone Biles" },
+  { id: 267, categoria: "Deportes", pregunta: "¿En qué deporte se puntúa 15, 30, 40?", respuesta: "El tenis" },
+  { id: 268, categoria: "Deportes", pregunta: "¿Qué tenista suizo ganó 20 Grand Slams?", respuesta: "Roger Federer" },
+  { id: 269, categoria: "Deportes", pregunta: "¿Cuál es el deporte más popular del mundo?", respuesta: "El fútbol" },
+  { id: 270, categoria: "Deportes", pregunta: "¿Cuántos puntos vale un triple en baloncesto?", respuesta: "Tres" },
+  { id: 271, categoria: "Deportes", pregunta: "¿Qué selección ganó el Mundial femenino de fútbol de 2023?", respuesta: "España" },
+  { id: 272, categoria: "Deportes", pregunta: "¿Cómo se llama el torneo de tenis sobre hierba que se juega en Londres?", respuesta: "Wimbledon" },
+  { id: 273, categoria: "Deportes", pregunta: "¿En qué deporte se usan bate y guante, muy popular en EE. UU.?", respuesta: "El béisbol" },
+  { id: 274, categoria: "Deportes", pregunta: "¿Cuántas piezas tiene cada jugador al empezar una partida de ajedrez?", respuesta: "Dieciséis" },
+  { id: 275, categoria: "Deportes", pregunta: "¿Qué pieza de ajedrez se mueve en forma de L?", respuesta: "El caballo" },
+  { id: 276, categoria: "Deportes", pregunta: "¿Cuál es la pieza más poderosa del ajedrez?", respuesta: "La dama (reina)" },
+  { id: 277, categoria: "Deportes", pregunta: "¿Qué videojuego de bloques permite construir mundos infinitos?", respuesta: "Minecraft" },
+  { id: 278, categoria: "Deportes", pregunta: "¿Qué personaje de Nintendo es un fontanero con gorra roja?", respuesta: "Mario" },
+  { id: 279, categoria: "Deportes", pregunta: "¿Qué videojuego de Epic Games es un battle royale muy popular?", respuesta: "Fortnite" },
+  { id: 280, categoria: "Deportes", pregunta: "¿Cuántos jugadores de voleibol hay por equipo en la pista?", respuesta: "Seis" },
+  { id: 281, categoria: "Deportes", pregunta: "¿Qué deporte se practica en un ring y con guantes?", respuesta: "El boxeo" },
+  { id: 282, categoria: "Deportes", pregunta: "¿Qué deporte combina esquí de fondo y tiro?", respuesta: "El biatlón" },
+  { id: 283, categoria: "Deportes", pregunta: "¿De qué país es originario el judo?", respuesta: "Japón" },
+  { id: 284, categoria: "Deportes", pregunta: "¿Cuántos anillos tiene la bandera olímpica?", respuesta: "Cinco" },
+  { id: 285, categoria: "Deportes", pregunta: "¿Qué significan los cinco anillos olímpicos?", respuesta: "La unión de los cinco continentes" },
+  { id: 286, categoria: "Tecnología", pregunta: "¿Qué significa «www»?", respuesta: "World Wide Web" },
+  { id: 287, categoria: "Tecnología", pregunta: "¿Qué significa «USB»?", respuesta: "Universal Serial Bus" },
+  { id: 288, categoria: "Tecnología", pregunta: "¿Qué es una URL?", respuesta: "La dirección de una página web" },
+  { id: 289, categoria: "Tecnología", pregunta: "¿Qué es el HTML?", respuesta: "El lenguaje que estructura las páginas web" },
+  { id: 290, categoria: "Tecnología", pregunta: "¿Qué significa «IA»?", respuesta: "Inteligencia artificial" },
+  { id: 291, categoria: "Tecnología", pregunta: "¿Qué es un algoritmo?", respuesta: "Una serie de pasos para resolver un problema" },
+  { id: 292, categoria: "Tecnología", pregunta: "¿Qué es el «phishing»?", respuesta: "Un engaño para robar tus datos haciéndose pasar por otra persona" },
+  { id: 293, categoria: "Tecnología", pregunta: "¿Qué es una contraseña segura?", respuesta: "Larga, única y con letras, números y símbolos" },
+  { id: 294, categoria: "Tecnología", pregunta: "¿Qué es la verificación en dos pasos?", respuesta: "Un segundo control, como un código, para entrar a una cuenta" },
+  { id: 295, categoria: "Tecnología", pregunta: "¿Qué es un virus informático?", respuesta: "Un programa malicioso que daña o roba información" },
+  { id: 296, categoria: "Tecnología", pregunta: "¿Qué es el ciberacoso?", respuesta: "Acosar a alguien a través de internet o redes sociales" },
+  { id: 297, categoria: "Tecnología", pregunta: "¿Qué es una «fake news»?", respuesta: "Una noticia falsa difundida como si fuera cierta" },
+  { id: 298, categoria: "Tecnología", pregunta: "¿Qué es un bot?", respuesta: "Un programa que realiza tareas automáticas" },
+  { id: 299, categoria: "Tecnología", pregunta: "¿Qué es «la nube»?", respuesta: "Guardar datos y programas en servidores de internet" },
+  { id: 300, categoria: "Tecnología", pregunta: "¿Quién fundó Microsoft junto a Paul Allen?", respuesta: "Bill Gates" },
+  { id: 301, categoria: "Tecnología", pregunta: "¿Quién cofundó Apple junto a Steve Wozniak?", respuesta: "Steve Jobs" },
+  { id: 302, categoria: "Tecnología", pregunta: "¿Quién creó Facebook?", respuesta: "Mark Zuckerberg" },
+  { id: 303, categoria: "Tecnología", pregunta: "¿Quién inventó la World Wide Web?", respuesta: "Tim Berners-Lee" },
+  { id: 304, categoria: "Tecnología", pregunta: "¿Qué significa «GPS»?", respuesta: "Sistema de posicionamiento global" },
+  { id: 305, categoria: "Tecnología", pregunta: "¿Qué es un píxel?", respuesta: "El punto más pequeño de una imagen digital" },
+  { id: 306, categoria: "Tecnología", pregunta: "¿Cuántos bits tiene un byte?", respuesta: "Ocho" },
+  { id: 307, categoria: "Tecnología", pregunta: "¿Qué lenguaje de programación tiene nombre de serpiente?", respuesta: "Python" },
+  { id: 308, categoria: "Tecnología", pregunta: "¿Qué hace un programador?", respuesta: "Escribe instrucciones para que las máquinas las ejecuten" },
+  { id: 309, categoria: "Tecnología", pregunta: "¿Qué es el código binario?", respuesta: "Un sistema que usa solo 0 y 1" },
+  { id: 310, categoria: "Tecnología", pregunta: "¿Qué es un emoji?", respuesta: "Un pictograma usado en mensajes digitales" },
+  { id: 311, categoria: "Tecnología", pregunta: "¿Qué es una selfie?", respuesta: "Una foto que te haces a ti mismo" },
+  { id: 312, categoria: "Tecnología", pregunta: "¿Qué es una app?", respuesta: "Un programa para móviles y tablets" },
+  { id: 313, categoria: "Tecnología", pregunta: "¿Qué es el «streaming»?", respuesta: "Ver o escuchar contenido en línea sin descargarlo" },
+  { id: 314, categoria: "Tecnología", pregunta: "¿Qué es la huella digital?", respuesta: "El rastro de datos que dejas al usar internet" },
+  { id: 315, categoria: "Tecnología", pregunta: "¿Qué es una VPN?", respuesta: "Una red privada virtual que protege tu conexión" },
+  { id: 316, categoria: "Tecnología", pregunta: "¿Qué es la realidad virtual?", respuesta: "Un entorno simulado en el que te sumerges con gafas especiales" },
+  { id: 317, categoria: "Tecnología", pregunta: "¿Qué es un dron?", respuesta: "Un vehículo aéreo no tripulado" },
+  { id: 318, categoria: "Tecnología", pregunta: "¿Qué es un robot?", respuesta: "Una máquina programable que realiza tareas de forma automática" },
+  { id: 319, categoria: "Tecnología", pregunta: "¿Qué es el hardware?", respuesta: "Las partes físicas de un dispositivo" },
+  { id: 320, categoria: "Tecnología", pregunta: "¿Qué es el software?", respuesta: "Los programas de un dispositivo" },
+  { id: 321, categoria: "Tecnología", pregunta: "¿Qué es un hacker ético?", respuesta: "Un experto que busca fallos de seguridad para corregirlos" },
+  { id: 322, categoria: "Tecnología", pregunta: "¿Qué es una criptomoneda?", respuesta: "Dinero digital protegido con criptografía" },
+  { id: 323, categoria: "Tecnología", pregunta: "¿Para qué sirve un navegador?", respuesta: "Para ver páginas web, como Chrome o Firefox" },
+  { id: 324, categoria: "Tecnología", pregunta: "¿Qué conviene hacer antes de compartir una foto de alguien?", respuesta: "Pedirle permiso" },
+  { id: 325, categoria: "Tecnología", pregunta: "¿Para qué sirve el Wi-Fi?", respuesta: "Para conectarse a internet sin cables" },
+  { id: 326, categoria: "Tecnología", pregunta: "¿Qué es una red social?", respuesta: "Una plataforma para compartir contenido y comunicarse con otras personas" },
+  { id: 327, categoria: "Lengua", pregunta: "¿Qué es un sinónimo?", respuesta: "Una palabra con significado parecido a otra" },
+  { id: 328, categoria: "Lengua", pregunta: "¿Qué es un antónimo?", respuesta: "Una palabra con significado opuesto a otra" },
+  { id: 329, categoria: "Lengua", pregunta: "¿Qué es un sustantivo?", respuesta: "La palabra que nombra personas, animales, cosas o ideas" },
+  { id: 330, categoria: "Lengua", pregunta: "¿Qué es un verbo?", respuesta: "La palabra que expresa acción, estado o proceso" },
+  { id: 331, categoria: "Lengua", pregunta: "¿Qué es un adjetivo?", respuesta: "La palabra que describe cómo es un sustantivo" },
+  { id: 332, categoria: "Lengua", pregunta: "¿Qué es una metáfora?", respuesta: "Comparar dos cosas sin usar «como» (ej.: «el tiempo es oro»)" },
+  { id: 333, categoria: "Lengua", pregunta: "¿Qué es un símil?", respuesta: "Comparar dos cosas usando «como» o «parece»" },
+  { id: 334, categoria: "Lengua", pregunta: "¿Cuántas letras tiene el abecedario español?", respuesta: "27" },
+  { id: 335, categoria: "Lengua", pregunta: "¿Cuál es el idioma con más hablantes en total en el mundo?", respuesta: "El inglés" },
+  { id: 336, categoria: "Lengua", pregunta: "¿Cuál es el segundo idioma con más hablantes nativos?", respuesta: "El español" },
+  { id: 337, categoria: "Lengua", pregunta: "¿Qué significa «A quien madruga, Dios le ayuda»?", respuesta: "Quien se esfuerza temprano obtiene mejores resultados" },
+  { id: 338, categoria: "Lengua", pregunta: "¿Qué significa «Más vale tarde que nunca»?", respuesta: "Es mejor hacer algo tarde que no hacerlo" },
+  { id: 339, categoria: "Lengua", pregunta: "¿Qué significa «No todo lo que brilla es oro»?", respuesta: "Las apariencias engañan" },
+  { id: 340, categoria: "Lengua", pregunta: "¿Qué significa «Camarón que se duerme se lo lleva la corriente»?", respuesta: "Quien se descuida pierde oportunidades" },
+  { id: 341, categoria: "Lengua", pregunta: "¿Qué significa «En boca cerrada no entran moscas»?", respuesta: "A veces conviene callar" },
+  { id: 342, categoria: "Lengua", pregunta: "¿Qué es una palabra esdrújula?", respuesta: "La que lleva el acento en la antepenúltima sílaba (ej.: «teléfono»)" },
+  { id: 343, categoria: "Lengua", pregunta: "¿Qué es una palabra aguda?", respuesta: "La que lleva el acento en la última sílaba" },
+  { id: 344, categoria: "Lengua", pregunta: "¿Qué se celebra el 23 de abril?", respuesta: "El Día del Libro" },
+  { id: 345, categoria: "Lengua", pregunta: "¿Qué se celebra el 8 de marzo?", respuesta: "El Día Internacional de la Mujer" },
+  { id: 346, categoria: "Lengua", pregunta: "¿Qué se celebra el 22 de abril?", respuesta: "El Día de la Tierra" },
+  { id: 347, categoria: "Lengua", pregunta: "¿Qué es una onomatopeya?", respuesta: "Una palabra que imita un sonido (ej.: «miau»)" },
+  { id: 348, categoria: "Lengua", pregunta: "¿Cuántos días tiene un año bisiesto?", respuesta: "366" },
+  { id: 349, categoria: "Lengua", pregunta: "¿Cada cuántos años hay un año bisiesto?", respuesta: "Cada cuatro años" },
+  { id: 350, categoria: "Lengua", pregunta: "¿Cuántos segundos tiene una hora?", respuesta: "3600" },
+  { id: 351, categoria: "Lengua", pregunta: "¿Cuántos meses tienen 31 días?", respuesta: "Siete" },
+  { id: 352, categoria: "Lengua", pregunta: "¿Cuántos años tiene un siglo?", respuesta: "100" },
+  { id: 353, categoria: "Lengua", pregunta: "¿Cuántos años tiene una década?", respuesta: "10" },
+  { id: 354, categoria: "Lengua", pregunta: "¿Cuántos años tiene un milenio?", respuesta: "1000" },
+  { id: 355, categoria: "Lengua", pregunta: "¿Qué idioma se habla en Brasil?", respuesta: "Portugués" },
+  { id: 356, categoria: "Lengua", pregunta: "¿Qué alfabeto se escribe de derecha a izquierda y se usa en Egipto?", respuesta: "El árabe" },
+  { id: 357, categoria: "Lengua", pregunta: "¿Qué significa «bilingüe»?", respuesta: "Que habla dos idiomas" },
+  { id: 358, categoria: "Lengua", pregunta: "¿Cuál es la lengua oficial de Japón?", respuesta: "El japonés" },
+  { id: 359, categoria: "Lengua", pregunta: "¿Qué es un prefijo?", respuesta: "Una partícula que va antes de la palabra y cambia su significado (ej.: «des-»)" },
+  { id: 360, categoria: "Lengua", pregunta: "¿Qué es un sufijo?", respuesta: "Una partícula que va al final de la palabra (ej.: «-ción»)" },
+  { id: 361, categoria: "Capitales", pregunta: "¿Cuál es la capital de Alemania?", respuesta: "Berlín" },
+  { id: 362, categoria: "Capitales", pregunta: "¿Cuál es la capital de Francia?", respuesta: "París" },
+  { id: 363, categoria: "Capitales", pregunta: "¿Cuál es la capital de España?", respuesta: "Madrid" },
+  { id: 364, categoria: "Capitales", pregunta: "¿Cuál es la capital de Italia?", respuesta: "Roma" },
+  { id: 365, categoria: "Capitales", pregunta: "¿Cuál es la capital de Portugal?", respuesta: "Lisboa" },
+  { id: 366, categoria: "Capitales", pregunta: "¿Cuál es la capital de Reino Unido?", respuesta: "Londres" },
+  { id: 367, categoria: "Capitales", pregunta: "¿Cuál es la capital de Irlanda?", respuesta: "Dublín" },
+  { id: 368, categoria: "Capitales", pregunta: "¿Cuál es la capital de Países Bajos?", respuesta: "Ámsterdam" },
+  { id: 369, categoria: "Capitales", pregunta: "¿Cuál es la capital de Bélgica?", respuesta: "Bruselas" },
+  { id: 370, categoria: "Capitales", pregunta: "¿Cuál es la capital de Suiza?", respuesta: "Berna" },
+  { id: 371, categoria: "Capitales", pregunta: "¿Cuál es la capital de Austria?", respuesta: "Viena" },
+  { id: 372, categoria: "Capitales", pregunta: "¿Cuál es la capital de Polonia?", respuesta: "Varsovia" },
+  { id: 373, categoria: "Capitales", pregunta: "¿Cuál es la capital de Chequia?", respuesta: "Praga" },
+  { id: 374, categoria: "Capitales", pregunta: "¿Cuál es la capital de Hungría?", respuesta: "Budapest" },
+  { id: 375, categoria: "Capitales", pregunta: "¿Cuál es la capital de Grecia?", respuesta: "Atenas" },
+  { id: 376, categoria: "Capitales", pregunta: "¿Cuál es la capital de Suecia?", respuesta: "Estocolmo" },
+  { id: 377, categoria: "Capitales", pregunta: "¿Cuál es la capital de Noruega?", respuesta: "Oslo" },
+  { id: 378, categoria: "Capitales", pregunta: "¿Cuál es la capital de Finlandia?", respuesta: "Helsinki" },
+  { id: 379, categoria: "Capitales", pregunta: "¿Cuál es la capital de Dinamarca?", respuesta: "Copenhague" },
+  { id: 380, categoria: "Capitales", pregunta: "¿Cuál es la capital de Rusia?", respuesta: "Moscú" },
+  { id: 381, categoria: "Capitales", pregunta: "¿Cuál es la capital de Ucrania?", respuesta: "Kiev" },
+  { id: 382, categoria: "Capitales", pregunta: "¿Cuál es la capital de Rumanía?", respuesta: "Bucarest" },
+  { id: 383, categoria: "Capitales", pregunta: "¿Cuál es la capital de Bulgaria?", respuesta: "Sofía" },
+  { id: 384, categoria: "Capitales", pregunta: "¿Cuál es la capital de Croacia?", respuesta: "Zagreb" },
+  { id: 385, categoria: "Capitales", pregunta: "¿Cuál es la capital de Serbia?", respuesta: "Belgrado" },
+  { id: 386, categoria: "Capitales", pregunta: "¿Cuál es la capital de Islandia?", respuesta: "Reikiavik" },
+  { id: 387, categoria: "Capitales", pregunta: "¿Cuál es la capital de Eslovaquia?", respuesta: "Bratislava" },
+  { id: 388, categoria: "Capitales", pregunta: "¿Cuál es la capital de Eslovenia?", respuesta: "Liubliana" },
+  { id: 389, categoria: "Capitales", pregunta: "¿Cuál es la capital de Lituania?", respuesta: "Vilna" },
+  { id: 390, categoria: "Capitales", pregunta: "¿Cuál es la capital de Letonia?", respuesta: "Riga" },
+  { id: 391, categoria: "Capitales", pregunta: "¿Cuál es la capital de Estonia?", respuesta: "Tallin" },
+  { id: 392, categoria: "Capitales", pregunta: "¿Cuál es la capital de México?", respuesta: "Ciudad de México" },
+  { id: 393, categoria: "Capitales", pregunta: "¿Cuál es la capital de Guatemala?", respuesta: "Ciudad de Guatemala" },
+  { id: 394, categoria: "Capitales", pregunta: "¿Cuál es la capital de Cuba?", respuesta: "La Habana" },
+  { id: 395, categoria: "Capitales", pregunta: "¿Cuál es la capital de Colombia?", respuesta: "Bogotá" },
+  { id: 396, categoria: "Capitales", pregunta: "¿Cuál es la capital de Venezuela?", respuesta: "Caracas" },
+  { id: 397, categoria: "Capitales", pregunta: "¿Cuál es la capital de Ecuador?", respuesta: "Quito" },
+  { id: 398, categoria: "Capitales", pregunta: "¿Cuál es la capital de Perú?", respuesta: "Lima" },
+  { id: 399, categoria: "Capitales", pregunta: "¿Cuál es la capital de Bolivia?", respuesta: "Sucre" },
+  { id: 400, categoria: "Capitales", pregunta: "¿Cuál es la capital de Chile?", respuesta: "Santiago" },
+  { id: 401, categoria: "Capitales", pregunta: "¿Cuál es la capital de Argentina?", respuesta: "Buenos Aires" },
+  { id: 402, categoria: "Capitales", pregunta: "¿Cuál es la capital de Uruguay?", respuesta: "Montevideo" },
+  { id: 403, categoria: "Capitales", pregunta: "¿Cuál es la capital de Paraguay?", respuesta: "Asunción" },
+  { id: 404, categoria: "Capitales", pregunta: "¿Cuál es la capital de Brasil?", respuesta: "Brasilia" },
+  { id: 405, categoria: "Capitales", pregunta: "¿Cuál es la capital de Panamá?", respuesta: "Ciudad de Panamá" },
+  { id: 406, categoria: "Capitales", pregunta: "¿Cuál es la capital de Costa Rica?", respuesta: "San José" },
+  { id: 407, categoria: "Capitales", pregunta: "¿Cuál es la capital de Nicaragua?", respuesta: "Managua" },
+  { id: 408, categoria: "Capitales", pregunta: "¿Cuál es la capital de Honduras?", respuesta: "Tegucigalpa" },
+  { id: 409, categoria: "Capitales", pregunta: "¿Cuál es la capital de El Salvador?", respuesta: "San Salvador" },
+  { id: 410, categoria: "Capitales", pregunta: "¿Cuál es la capital de República Dominicana?", respuesta: "Santo Domingo" },
+  { id: 411, categoria: "Capitales", pregunta: "¿Cuál es la capital de Canadá?", respuesta: "Ottawa" },
+  { id: 412, categoria: "Capitales", pregunta: "¿Cuál es la capital de Estados Unidos?", respuesta: "Washington D. C." },
+  { id: 413, categoria: "Capitales", pregunta: "¿Cuál es la capital de Jamaica?", respuesta: "Kingston" },
+  { id: 414, categoria: "Capitales", pregunta: "¿Cuál es la capital de Haití?", respuesta: "Puerto Príncipe" },
+  { id: 415, categoria: "Capitales", pregunta: "¿Cuál es la capital de Belice?", respuesta: "Belmopán" },
+  { id: 416, categoria: "Capitales", pregunta: "¿Cuál es la capital de Surinam?", respuesta: "Paramaribo" },
+  { id: 417, categoria: "Capitales", pregunta: "¿Cuál es la capital de Japón?", respuesta: "Tokio" },
+  { id: 418, categoria: "Capitales", pregunta: "¿Cuál es la capital de China?", respuesta: "Pekín" },
+  { id: 419, categoria: "Capitales", pregunta: "¿Cuál es la capital de Corea del Sur?", respuesta: "Seúl" },
+  { id: 420, categoria: "Capitales", pregunta: "¿Cuál es la capital de India?", respuesta: "Nueva Delhi" },
+  { id: 421, categoria: "Capitales", pregunta: "¿Cuál es la capital de Tailandia?", respuesta: "Bangkok" },
+  { id: 422, categoria: "Capitales", pregunta: "¿Cuál es la capital de Vietnam?", respuesta: "Hanói" },
+  { id: 423, categoria: "Capitales", pregunta: "¿Cuál es la capital de Indonesia?", respuesta: "Yakarta" },
+  { id: 424, categoria: "Capitales", pregunta: "¿Cuál es la capital de Filipinas?", respuesta: "Manila" },
+  { id: 425, categoria: "Capitales", pregunta: "¿Cuál es la capital de Malasia?", respuesta: "Kuala Lumpur" },
+  { id: 426, categoria: "Capitales", pregunta: "¿Cuál es la capital de Pakistán?", respuesta: "Islamabad" },
+  { id: 427, categoria: "Capitales", pregunta: "¿Cuál es la capital de Irán?", respuesta: "Teherán" },
+  { id: 428, categoria: "Capitales", pregunta: "¿Cuál es la capital de Irak?", respuesta: "Bagdad" },
+  { id: 429, categoria: "Capitales", pregunta: "¿Cuál es la capital de Turquía?", respuesta: "Ankara" },
+  { id: 430, categoria: "Capitales", pregunta: "¿Cuál es la capital de Arabia Saudita?", respuesta: "Riad" },
+  { id: 431, categoria: "Capitales", pregunta: "¿Cuál es la capital de Israel?", respuesta: "Jerusalén" },
+  { id: 432, categoria: "Capitales", pregunta: "¿Cuál es la capital de Nepal?", respuesta: "Katmandú" },
+  { id: 433, categoria: "Capitales", pregunta: "¿Cuál es la capital de Mongolia?", respuesta: "Ulán Bator" },
+  { id: 434, categoria: "Capitales", pregunta: "¿Cuál es la capital de Egipto?", respuesta: "El Cairo" },
+  { id: 435, categoria: "Capitales", pregunta: "¿Cuál es la capital de Marruecos?", respuesta: "Rabat" },
+  { id: 436, categoria: "Capitales", pregunta: "¿Cuál es la capital de Argelia?", respuesta: "Argel" },
+  { id: 437, categoria: "Capitales", pregunta: "¿Cuál es la capital de Túnez?", respuesta: "Túnez" },
+  { id: 438, categoria: "Capitales", pregunta: "¿Cuál es la capital de Nigeria?", respuesta: "Abuya" },
+  { id: 439, categoria: "Capitales", pregunta: "¿Cuál es la capital de Kenia?", respuesta: "Nairobi" },
+  { id: 440, categoria: "Capitales", pregunta: "¿Cuál es la capital de Etiopía?", respuesta: "Adís Abeba" },
+  { id: 441, categoria: "Capitales", pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "Pretoria" },
+  { id: 442, categoria: "Capitales", pregunta: "¿Cuál es la capital de Ghana?", respuesta: "Acra" },
+  { id: 443, categoria: "Capitales", pregunta: "¿Cuál es la capital de Senegal?", respuesta: "Dakar" },
+  { id: 444, categoria: "Capitales", pregunta: "¿Cuál es la capital de Angola?", respuesta: "Luanda" },
+  { id: 445, categoria: "Capitales", pregunta: "¿Cuál es la capital de Australia?", respuesta: "Canberra" },
+  { id: 446, categoria: "Capitales", pregunta: "¿Cuál es la capital de Nueva Zelanda?", respuesta: "Wellington" },
+  { id: 447, categoria: "Capitales", pregunta: "¿Cuál es la capital de Fiyi?", respuesta: "Suva" },
+  { id: 448, categoria: "Capitales", pregunta: "¿Cuál es la capital de Afganistán?", respuesta: "Kabul" },
+  { id: 449, categoria: "Capitales", pregunta: "¿Cuál es la capital de Camboya?", respuesta: "Nom Pen" },
+  { id: 450, categoria: "Capitales", pregunta: "¿Cuál es la capital de Libia?", respuesta: "Trípoli" },
+  { id: 451, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo H?", respuesta: "Hidrógeno" },
+  { id: 452, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo He?", respuesta: "Helio" },
+  { id: 453, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Li?", respuesta: "Litio" },
+  { id: 454, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Be?", respuesta: "Berilio" },
+  { id: 455, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo B?", respuesta: "Boro" },
+  { id: 456, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo C?", respuesta: "Carbono" },
+  { id: 457, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo N?", respuesta: "Nitrógeno" },
+  { id: 458, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo O?", respuesta: "Oxígeno" },
+  { id: 459, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo F?", respuesta: "Flúor" },
+  { id: 460, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ne?", respuesta: "Neón" },
+  { id: 461, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Na?", respuesta: "Sodio" },
+  { id: 462, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Mg?", respuesta: "Magnesio" },
+  { id: 463, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Al?", respuesta: "Aluminio" },
+  { id: 464, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Si?", respuesta: "Silicio" },
+  { id: 465, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo P?", respuesta: "Fósforo" },
+  { id: 466, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo S?", respuesta: "Azufre" },
+  { id: 467, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Cl?", respuesta: "Cloro" },
+  { id: 468, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ar?", respuesta: "Argón" },
+  { id: 469, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo K?", respuesta: "Potasio" },
+  { id: 470, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ca?", respuesta: "Calcio" },
+  { id: 471, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ti?", respuesta: "Titanio" },
+  { id: 472, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Cr?", respuesta: "Cromo" },
+  { id: 473, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Mn?", respuesta: "Manganeso" },
+  { id: 474, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Fe?", respuesta: "Hierro" },
+  { id: 475, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Co?", respuesta: "Cobalto" },
+  { id: 476, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ni?", respuesta: "Níquel" },
+  { id: 477, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Cu?", respuesta: "Cobre" },
+  { id: 478, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Zn?", respuesta: "Zinc" },
+  { id: 479, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo As?", respuesta: "Arsénico" },
+  { id: 480, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Br?", respuesta: "Bromo" },
+  { id: 481, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Kr?", respuesta: "Kriptón" },
+  { id: 482, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ag?", respuesta: "Plata" },
+  { id: 483, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Sn?", respuesta: "Estaño" },
+  { id: 484, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo I?", respuesta: "Yodo" },
+  { id: 485, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Xe?", respuesta: "Xenón" },
+  { id: 486, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ba?", respuesta: "Bario" },
+  { id: 487, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo W?", respuesta: "Wolframio" },
+  { id: 488, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Pt?", respuesta: "Platino" },
+  { id: 489, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Au?", respuesta: "Oro" },
+  { id: 490, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Hg?", respuesta: "Mercurio" },
+  { id: 491, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Pb?", respuesta: "Plomo" },
+  { id: 492, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo U?", respuesta: "Uranio" },
+  { id: 493, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ra?", respuesta: "Radio" },
+  { id: 494, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Rn?", respuesta: "Radón" },
+  { id: 495, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Ge?", respuesta: "Germanio" },
+  { id: 496, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Se?", respuesta: "Selenio" },
+  { id: 497, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Sr?", respuesta: "Estroncio" },
+  { id: 498, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Cd?", respuesta: "Cadmio" },
+  { id: 499, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Sb?", respuesta: "Antimonio" },
+  { id: 500, categoria: "Elementos químicos", pregunta: "¿Qué elemento tiene el símbolo Bi?", respuesta: "Bismuto" }
+];
+
+const COLORES = {
+  "Historia":"#C2410C", "Geografía":"#0F766E", "Ciencia":"#1D4ED8", "Arte y música":"#A21CAF",
+  "Cuerpo y salud":"#BE123C", "Deportes":"#15803D", "Tecnología":"#4338CA", "Lengua":"#B45309",
+  "Capitales":"#0E7490", "Elementos químicos":"#6D28D9"
+};
+const COLOR_DEFECTO = "#4338CA";
+const CLAVE = "cultura-general-progreso-v1";
+
+/* ---------- Estado ---------- */
+let orden = TARJETAS.map((_, i) => i);
+let pos = 0, volteada = false, aleatorio = false, ocupado = false;
+let progreso = {};
+try { progreso = JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch (e) {}
+const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(progreso)); } catch (e) {} };
+const $ = id => document.getElementById(id);
+const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Pintar la tarjeta actual ---------- */
+function pintar() {
+  const t = TARJETAS[orden[pos]], n = orden.length;
+  const color = COLORES[t.categoria] || COLOR_DEFECTO;
+  const estado = progreso[t.id] || "";
+  const escena = $("scene");
+
+  document.documentElement.style.setProperty("--c", color);
+  escena.style.setProperty("--c", color);
+  escena.dataset.status = estado;
+  $("q").textContent = t.pregunta;
+  $("a").textContent = t.respuesta;
+  document.querySelectorAll("[data-cat]").forEach(e => e.textContent = t.categoria);
+  document.querySelectorAll("[data-badge]").forEach(e =>
+    e.textContent = estado === "sabida" ? "✓ Ya me la sé" : estado === "repasar" ? "↻ Repasar luego" : "");
+
+  $("count").textContent = "Tarjeta " + (pos + 1) + " de " + n;
+  $("bar").style.width = ((pos + 1) / n * 100) + "%";
+  const vals = Object.values(progreso);
+  $("stats").textContent = vals.filter(v => v === "sabida").length + " sabidas · " + vals.filter(v => v === "repasar").length + " por repasar";
+  actualizarGiro();
+}
+
+function actualizarGiro() {
+  $("card").classList.toggle("is-flipped", volteada);
+  $("front").setAttribute("aria-hidden", volteada);
+  $("back").setAttribute("aria-hidden", !volteada);
+  $("flip").textContent = volteada ? "Ver pregunta" : "Ver respuesta";
+  $("card").setAttribute("aria-label", volteada ? "Respuesta. Pulsa para ver la pregunta." : "Pregunta. Pulsa para ver la respuesta.");
+}
+
+/* ---------- Acciones ---------- */
+function voltear() { volteada = !volteada; actualizarGiro(); }
+
+function ir(delta) {
+  if (ocupado) return;
+  const aplicar = () => { pos = (pos + delta + orden.length) % orden.length; ocupado = false; pintar(); };
+  if (volteada) {              // primero se gira de vuelta para no "revelar" la siguiente respuesta
+    ocupado = true; volteada = false; actualizarGiro();
+    setTimeout(aplicar, sinMovimiento ? 0 : 320);
+  } else aplicar();
+}
+
+function marcar(estado) {
+  if (ocupado) return;
+  progreso[TARJETAS[orden[pos]].id] = estado; guardar(); pintar();
+  setTimeout(() => ir(1), sinMovimiento ? 0 : 450);   // feedback visual y pasa a la siguiente
+}
+
+function alternarOrden() {
+  aleatorio = !aleatorio;
+  orden = TARJETAS.map((_, i) => i);
+  if (aleatorio) for (let i = orden.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); [orden[i], orden[j]] = [orden[j], orden[i]];
+  }
+  pos = 0; volteada = false;
+  $("shuffle").textContent = "Orden: " + (aleatorio ? "aleatorio" : "secuencial");
+  pintar();
+}
+
+/* ---------- Eventos ---------- */
+$("card").addEventListener("click", voltear);
+$("flip").addEventListener("click", voltear);
+$("next").addEventListener("click", () => ir(1));
+$("prev").addEventListener("click", () => ir(-1));
+$("known").addEventListener("click", () => marcar("sabida"));
+$("later").addEventListener("click", () => marcar("repasar"));
+$("shuffle").addEventListener("click", alternarOrden);
+$("reset").addEventListener("click", () => { progreso = {}; guardar(); pintar(); });
+$("theme").addEventListener("click", () => {
+  const r = document.documentElement;
+  const oscuro = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = oscuro ? "light" : "dark";
+  try { localStorage.setItem("cultura-general-tema", r.dataset.theme); } catch (e) {}
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") ir(1);
+  else if (e.key === "ArrowLeft") ir(-1);
+  else if ((e.key === " " || e.key === "Enter") && e.target === $("card")) { e.preventDefault(); voltear(); }
+});
+
+/* ---------- Inicio ---------- */
+try { const tema = localStorage.getItem("cultura-general-tema"); if (tema) document.documentElement.dataset.theme = tema; } catch (e) {}
+pintar();
+</script>
+</body>
+</html>
