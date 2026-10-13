@@ -735,6 +735,29 @@ try { const tema = localStorage.getItem("cultura-general-tema"); if (tema) docum
 pintar();
 </script>
 </body>
+<!-- ENLACE EN EL PIE DE PÁGINA -->
+<div style="text-align: center; padding: 20px 16px; margin-top: auto;">
+  <a href="#" id="privacy" style="color: var(--soft, #5A6482); font-weight: 700; text-decoration: underline; font-size: 0.9rem; background: none; border: none; cursor: pointer;">Política de Privacidad</a>
+</div>
+
+<!-- VENTANA DIÁLOGO NATIVA (MODAL) -->
+<dialog id="modal" style="border: none; border-radius: 24px; padding: 0; max-width: 480px; width: 90%; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-family: var(--font);">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 80vh;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 12px;">
+      <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800;">Política de Privacidad</h2>
+      <button id="x" style="background: none; border: none; font-size: 1.5rem; color: var(--soft); cursor: pointer; padding: 0 4px;">&times;</button>
+    </div>
+    <div class="sheet-body" style="overflow-y: auto; font-size: 0.95rem; line-height: 1.5; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+      <p>Bienvenido a nuestro sitio de Flashcards. Nos tomamos muy en serio la privacidad de nuestros usuarios.</p>
+      <p><strong>1. Información recopilada:</strong> No solicitamos datos personales, nombres ni correos electrónicos. Tu progreso se guarda localmente en tu propio dispositivo.</p>
+      <p><strong>2. Cookies y Anuncios:</strong> Este sitio utiliza proveedores de terceros, incluido Google AdSense, que utilizan cookies para mostrar anuncios basados en las visitas anteriores del usuario.</p>
+      <p><strong>3. Cookie de DoubleClick:</strong> El uso de la cookie de publicidad permite a Google y a sus socios mostrar anuncios personalizados. Puedes inhabilitar esto en las Preferencias de anuncios de Google.</p>
+      <p><strong>4. Contacto:</strong> Si tienes dudas sobre esta política, puedes contactarnos a través de nuestra plataforma.</p>
+    </div>
+    <button id="close" class="btn main" style="min-height: 44px; padding: 10px; width: 100%; margin-top: 8px; background: var(--c, #4338CA); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer;">Cerrar</button>
+  </div>
+</dialog>
+
 <script>
 (function () {
   var modal = document.getElementById("modal");
