@@ -735,27 +735,41 @@ try { const tema = localStorage.getItem("cultura-general-tema"); if (tema) docum
 pintar();
 </script>
 </body>
-  <script>
-(function () {
-  var modal = document.getElementById("modal");
-  var enlace = document.getElementById("privacy");
-  if (!modal || !enlace) return;
+ <!-- BOTÓN FLOTANTE INDEPENDIENTE (FORZADO AL FRENTE) -->
+<a href="#" id="openPrivacy" style="position: fixed; bottom: 15px; left: 15px; z-index: 999999; color: var(--ink, #1b2036); font-family: sans-serif; font-size: 13px; text-decoration: underline; background: var(--surface, rgba(255,255,255,0.8)); padding: 5px 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); opacity: 0.8; cursor: pointer;">Política de Privacidad</a>
 
-  function abrir(e) {
-    if (e) e.preventDefault();
-    if (!modal.open) modal.showModal();
-    modal.querySelector(".sheet-body").scrollTop = 0;
-  }
-  function cerrar() { modal.close(); }
+<!-- VENTANA FLOTANTE (MODAL) DE PRIVACIDAD -->
+<div id="privacyModal" style="display: none; position: fixed; z-index: 1000000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(3px); align-items: center; justify-content: center;">
+    <div style="background-color: var(--surface, #ffffff); color: var(--ink, #1b2036); padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; font-family: sans-serif; line-height: 1.5; font-size: 15px;">
+        <span id="closePrivacy" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; font-weight: bold; opacity: 0.6;">&times;</span>
+        <h2 style="margin-top: 0; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Política de Privacidad</h2>
+        <p>Bienvenido a Flashcards Cultura General. Nos tomamos muy en serio la privacidad de nuestros usuarios.</p>
+        <p><strong>1. Información que recopilamos:</strong> No solicitamos datos personales, nombres ni correos electrónicos para usar la aplicación. El progreso se guarda localmente en su propio dispositivo.</p>
+        <p><strong>2. Cookies y Anuncios:</strong> Este sitio utiliza proveedores de terceros, incluido Google AdSense, que utilizan cookies para mostrar anuncios basados en las visitas anteriores del usuario.</p>
+        <p><strong>3. Cookie de DoubleClick:</strong> El uso de la cookie de publicidad de Google permite mostrar anuncios personalizados. Los usuarios pueden inhabilitar esto visitando Preferencias de anuncios de Google.</p>
+        <p><strong>4. Contacto:</strong> Si tiene dudas sobre esta política, puede contactarnos a través de nuestra plataforma.</p>
+        <button id="closePrivacyBtn" style="display: block; width: 100%; padding: 10px; background-color: var(--ok, #15803d); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 20px; font-weight: bold;">Cerrar</button>
+    </div>
+</div>
 
-  enlace.addEventListener("click", abrir);
-  document.getElementById("close").addEventListener("click", cerrar);
-  document.getElementById("x").addEventListener("click", cerrar);
-  modal.addEventListener("click", function (e) { if (e.target === modal) cerrar(); });
-  modal.addEventListener("close", function () {
-    if (location.hash === "#privacidad") history.replaceState(null, "", location.pathname + location.search);
-  });
-  if (location.hash === "#privacidad") abrir();
-})();
+<!-- LÓGICA INTERACTIVA PARA ABRIR Y CERRAR -->
+<script>
+    (function() {
+        const modal = document.getElementById("privacyModal");
+        const openBtn = document.getElementById("openPrivacy");
+        const closeX = document.getElementById("closePrivacy");
+        const closeBtn = document.getElementById("closePrivacyBtn");
+
+        if (openBtn && modal) {
+            openBtn.addEventListener("click", function(e) { 
+                e.preventDefault(); 
+                e.stopPropagation();
+                modal.style.display = "flex"; 
+            });
+        }
+        if (closeX) closeX.addEventListener("click", function() { modal.style.display = "none"; });
+        if (closeBtn) closeBtn.addEventListener("click", function() { modal.style.display = "none"; });
+        window.addEventListener("click", function(e) { if (e.target === modal) { modal.style.display = "none"; } });
+    })();
 </script>
 </html>
