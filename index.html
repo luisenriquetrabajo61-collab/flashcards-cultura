@@ -729,7 +729,23 @@ document.addEventListener("keydown", e => {
   else if (e.key === "ArrowLeft") ir(-1);
   else if ((e.key === " " || e.key === "Enter") && e.target === $("card")) { e.preventDefault(); voltear(); }
 });
-
+  
+/* ---------- Ventana de Política de Privacidad ---------- */
+const modal = $("modal");
+function abrirPrivacidad(e) {
+  if (e) e.preventDefault();
+  if (!modal.open) modal.showModal();
+  modal.querySelector(".sheet-body").scrollTop = 0;
+}
+const cerrarPrivacidad = () => modal.close();
+$("privacy").addEventListener("click", abrirPrivacidad);
+$("close").addEventListener("click", cerrarPrivacidad);
+$("x").addEventListener("click", cerrarPrivacidad);
+modal.addEventListener("click", e => { if (e.target === modal) cerrarPrivacidad(); });
+modal.addEventListener("close", () => {
+  if (location.hash === "#privacidad") history.replaceState(null, "", location.pathname + location.search);
+});
+if (location.hash === "#privacidad") abrirPrivacidad();
 /* ---------- Inicio ---------- */
 try { const tema = localStorage.getItem("cultura-general-tema"); if (tema) document.documentElement.dataset.theme = tema; } catch (e) {}
 pintar();
