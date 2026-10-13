@@ -727,8 +727,8 @@ $("theme").addEventListener("click", () => {
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") ir(1);
   else if (e.key === "ArrowLeft") ir(-1);
-  else if ((e.key === " " || e.key === "Enter") && e.target === $("card")) { e.preventDefault(); voltear();
-}
+  else if ((e.key === " " || e.key === "Enter") && e.target === $("card")) { e.preventDefault(); voltear(); }
+});
                          
 /* ---------- Inicio ---------- */
 try { const tema = localStorage.getItem("cultura-general-tema"); if (tema) document.documentElement.dataset.theme = tema; } catch (e) {}
