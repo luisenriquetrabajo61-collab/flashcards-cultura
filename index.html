@@ -83,6 +83,23 @@ h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
     <h1>🧠 Cultura General</h1>
     <button class="icon-btn" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌓</button>
   </header>
+  <!-- MENÚ DESPLEGABLE DE CATEGORÍAS -->
+  <div style="margin: 5px 0 10px 0;">
+    <label for="categorySelect" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--soft); margin-bottom: 6px;">Selecciona una temática:</label>
+    <select id="categorySelect" style="width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--font); font-weight: 700; font-size: 0.95rem; cursor: pointer; outline: none; transition: border-color 0.15s;">
+      <option value="Todas">🌍 Todas las temáticas (500 tarjetas)</option>
+      <option value="Historia">⏳ Historia</option>
+      <option value="Geografía">🗺️ Geografía</option>
+      <option value="Ciencia">🔬 Ciencia</option>
+      <option value="Arte y música">🎨 Arte y Música</option>
+      <option value="Cuerpo y salud">🫁 Cuerpo y Salud</option>
+      <option value="Deportes">⚽ Deportes</option>
+      <option value="Tecnología">💻 Tecnología</option>
+      <option value="Lengua">✍️ Lengua</option>
+      <option value="Capitales">🏛️ Capitales</option>
+      <option value="Elementos químicos">🧪 Elementos Químicos</option>
+    </select>
+  </div>
 
   <div>
     <div class="counter"><span id="count">Tarjeta 1 de 500</span><span id="stats"></span></div>
@@ -119,6 +136,8 @@ h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
   <div class="foot">
     <button class="link" id="shuffle">Orden: secuencial</button>
     <button class="link" id="reset">Reiniciar progreso</button>
+        <button class="link" id="openContact">Soporte y Contacto</button>
+
   </div>
 </div>
 
@@ -717,6 +736,39 @@ $("prev").addEventListener("click", () => ir(-1));
 $("known").addEventListener("click", () => marcar("sabida"));
 $("later").addEventListener("click", () => marcar("repasar"));
 $("shuffle").addEventListener("click", alternarOrden);
+// LÓGICA FILTRADO DE TEMÁTICAS
+$("categorySelect").addEventListener("change", function(e) {
+  const catSeleccionada = e.target.value;
+  
+  if (catSeleccionada === "Todas") {
+    orden = TARJETAS.map((_, i) => i);
+  } else {
+    orden = [];
+    for (let i = 0; i < TARJETAS.length; i++) {
+      if (TARJETAS[i].categoria === catSeleccionada) {
+        orden.push(i);
+      }
+    }
+  }
+  
+  if (orden.length === 0) return;
+  
+  if (aleatorio) {
+    for (let i = orden.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [orden[i], orden[j]] = [orden[j], orden[i]];
+    }
+  }
+  
+  pos = 0;
+  volteada = false;
+  pintar();
+});
+
+// Efecto visual al seleccionar
+$("categorySelect").addEventListener("focus", () => $("categorySelect").style.borderColor = "var(--c)");
+$("categorySelect").addEventListener("blur", () => $("categorySelect").style.borderColor = "var(--line)");
+
 $("reset").addEventListener("click", () => { progreso = {}; guardar(); pintar(); });
 $("theme").addEventListener("click", () => {
   const r = document.documentElement;
@@ -734,6 +786,32 @@ document.addEventListener("keydown", e => {
 try { const tema = localStorage.getItem("cultura-general-tema"); if (tema) document.documentElement.dataset.theme = tema; } catch (e) {}
 pintar();
 </script>
+<!-- VENTANA DIÁLOGO NATIVA (MODAL) DE CONTACTO -->
+<dialog id="contactModal" style="border: none; border-radius: 24px; padding: 0; max-width: 480px; width: 90%; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-family: var(--font);">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 80vh;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 12px;">
+      <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800;">📬 Soporte y Contacto</h2>
+      <button id="closeContactX" style="background: none; border: none; font-size: 1.5rem; color: var(--soft); cursor: pointer; padding: 0 4px;">&times;</button>
+    </div>
+    
+    <div style="font-size: 0.95rem; line-height: 1.5; display: flex; flex-direction: column; gap: 12px;">
+      <p style="margin: 0;">¿Tienes alguna duda, sugerencia o has encontrado algún error en las tarjetas? Envíanos un mensaje directo:</p>
+      
+      <!-- Reemplaza "TU_CLAVE_AQUÍ" por tu correo temporal o tu código de FormSubmit -->
+      <form action="https://formsubmit.co/luisenriquetrabajo61@gmail.com" method="POST" style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">
+        <input type="hidden" name="_next" value="https://vercel.app">
+        <input type="hidden" name="_captcha" value="false">
+        
+        <input type="email" name="email" placeholder="Tu correo electrónico" required style="width: 100%; min-height: 40px; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 0.9rem; outline: none;">
+        
+        <textarea name="mensaje" placeholder="Escribe aquí tu consulta en detalle..." required rows="4" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 0.9rem; outline: none; resize: vertical;"></textarea>
+        
+        <button type="submit" style="min-height: 44px; padding: 10px; background: var(--c, #4338CA); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-family: var(--font); font-size: 0.95rem; margin-top: 5px;">Enviar Mensaje</button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
 </body>
 <!-- ENLACE EN EL PIE DE PÁGINA -->
 <div style="text-align: center; padding: 20px 16px; margin-top: auto;">
@@ -752,6 +830,25 @@ pintar();
       <p><strong>1. Información recopilada:</strong> No solicitamos datos personales, nombres ni correos electrónicos. Tu progreso se guarda localmente en tu propio dispositivo.</p>
       <p><strong>2. Cookies y Anuncios:</strong> Este sitio utiliza proveedores de terceros, incluido Google AdSense, que utilizan cookies para mostrar anuncios basados en las visitas anteriores del usuario.</p>
       <p><strong>3. Cookie de DoubleClick:</strong> El uso de la cookie de publicidad permite a Google y a sus socios mostrar anuncios personalizados. Puedes inhabilitar esto en las Preferencias de anuncios de Google.</p>
+            <!-- SECCIÓN DE CONTACTO SEGURA (FORM-SUBMIT) -->
+      <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--line);">
+        <p style="margin-top: 0; font-weight: 700; font-size: 0.95rem;">📬 Soporte y Contacto:</p>
+        
+        <!-- Pone temporalmente un correo tuyo para recibir el código anónimo -->
+        <form action="https://formsubmit.co" method="POST" style="display: flex; flex-direction: column; gap: 10px;">
+          
+          <!-- Configuración para evitar salir de tu web al enviar -->
+          <input type="hidden" name="_next" value="https://vercel.app">
+          <input type="hidden" name="_captcha" value="false">
+          
+          <input type="email" name="email" placeholder="Tu correo electrónico" required style="width: 100%; min-height: 40px; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 0.9rem; outline: none;">
+          
+          <textarea name="mensaje" placeholder="Escribe aquí tu consulta o reporte de error..." required rows="3" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 0.9rem; outline: none; resize: vertical;"></textarea>
+          
+          <button type="submit" style="min-height: 40px; padding: 8px; background: var(--c, #4338CA); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-family: var(--font); font-size: 0.95rem; transition: opacity 0.15s;">Enviar Mensaje</button>
+        </form>
+      </div>
+
       <p><strong>4. Contacto:</strong> Si tienes dudas sobre esta política, puedes contactarnos a través de nuestra plataforma.</p>
     </div>
     <button id="close" class="btn main" style="min-height: 44px; padding: 10px; width: 100%; margin-top: 8px; background: var(--c, #4338CA); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer;">Cerrar</button>
@@ -779,6 +876,18 @@ pintar();
     if (location.hash === "#privacidad") history.replaceState(null, "", location.pathname + location.search);
   });
   if (location.hash === "#privacidad") abrir();
+    // LÓGICA MODAL DE CONTACTO INDEPENDIENTE
+  var cModal = document.getElementById("contactModal");
+  var cEnlace = document.getElementById("openContact");
+  if (cModal && cEnlace) {
+    cEnlace.addEventListener("click", function(e) {
+      e.preventDefault();
+      if (!cModal.open) cModal.showModal();
+    });
+    document.getElementById("closeContactX").addEventListener("click", function() { cModal.close(); });
+    cModal.addEventListener("click", function (e) { if (e.target === cModal) cModal.close(); });
+  }
+
 })();
 </script>
 </html>
