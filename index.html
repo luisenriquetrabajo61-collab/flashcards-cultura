@@ -17,16 +17,25 @@
   --font:"Avenir Next","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--bg:#0E1426;--surface:#1A2140;--ink:#EEF1FB;--soft:#9BA6C6;--line:#2C3560;--ok:#4ADE80;--warn:#FBBF24;--shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+  :root:not([data-theme="light"]){--bg:transparent;--surface:#1A2140;--ink:#EEF1FB;--soft:#9BA6C6;--line:#2C3560;--ok:#4ADE80;--warn:#FBBF24;--shadow:0 18px 40px -14px rgba(0,0,0,.6)}
 }
-:root[data-theme="dark"]{--bg:#0E1426;--surface:#1A2140;--ink:#EEF1FB;--soft:#9BA6C6;--line:#2C3560;--ok:#4ADE80;--warn:#FBBF24;--shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+:root[data-theme="dark"]{--bg:transparent;--surface:#1A2140;--ink:#EEF1FB;--soft:#9BA6C6;--line:#2C3560;--ok:#4ADE80;--warn:#FBBF24;--shadow:0 18px 40px -14px rgba(0,0,0,.6)}
 
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;
+body {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-image: url('https://unsplash.com');
+  transition: background-image 0.5s ease-in-out;
+}
+
+body{margin:0;color:var(--ink);font-family:var(--font);line-height:1.45;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   -webkit-tap-highlight-color:transparent}
-.app{max-width:520px;min-height:100%;margin:0 auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px}
+.app{max-width:520px;min-height:100%;margin:0 auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px;background:transparent}
 
 /* ---------- Cabecera y contador ---------- */
 header{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -75,6 +84,10 @@ h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
 .link{font:inherit;background:none;border:none;color:var(--ink);font-weight:700;cursor:pointer;text-decoration:underline;padding:8px 0}
 
 @media (prefers-reduced-motion:reduce){.card,.track i,.btn{transition:none}}
+html, body, .app {
+  background-color: transparent !important;
+}
+
 </style>
 </head>
 <body>
@@ -736,38 +749,49 @@ $("prev").addEventListener("click", () => ir(-1));
 $("known").addEventListener("click", () => marcar("sabida"));
 $("later").addEventListener("click", () => marcar("repasar"));
 $("shuffle").addEventListener("click", alternarOrden);
+// DICCIONARIO DE FONDOS POR TEMÁTICA CORREGIDO
+const FONDOS_CATEGORIAS = {
+  "Todas": "https://unsplash.com",
+  "Historia": "https://unsplash.com",
+  "Geografía": "https://unsplash.com",
+  "Ciencia": "https://unsplash.com",
+  "Arte y música": "https://unsplash.com",
+  "Cuerpo y salud": "https://unsplash.com",
+  "Deportes": "https://unsplash.com",
+  "Tecnología": "https://unsplash.com",
+  "Lengua": "https://unsplash.com",
+  "Capitales": "https://unsplash.com",
+  "Elementos químicos": "https://unsplash.com"
+};
+
+
+
 // LÓGICA FILTRADO DE TEMÁTICAS
-$("categorySelect").addEventListener("change", function(e) {
-  const catSeleccionada = e.target.value;
-  
-  if (catSeleccionada === "Todas") {
-    orden = TARJETAS.map((_, i) => i);
-  } else {
-    orden = [];
-    for (let i = 0; i < TARJETAS.length; i++) {
-      if (TARJETAS[i].categoria === catSeleccionada) {
-        orden.push(i);
+    // EVENTO SELECCIÓN DE CATEGORÍAS Y FONDOS
+    $("categorySelect").addEventListener("change", function(e) {
+      const catSeleccionada = e.target.value;
+      orden = flashcards.map((_, i) => i).filter(i => catSeleccionada === "Todas" || flashcards[i].categoria === catSeleccionada);
+      
+      if(orden.length === 0) {
+        $("q").textContent = "No hay tarjetas en esta categoría.";
+        $("a").textContent = "-";
+        return;
       }
-    }
-  }
-  
-  if (orden.length === 0) return;
-  
-  if (aleatorio) {
-    for (let i = orden.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [orden[i], orden[j]] = [orden[j], orden[i]];
-    }
-  }
-  
-  pos = 0;
-  volteada = false;
-  pintar();
-});
+      
+      if (aleatorio) {
+        for (let i = orden.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [orden[i], orden[j]] = [orden[j], orden[i]];
+        }
+      }
+      pos = 0; volteada = false; pintar();
+document.body.style.backgroundImage = `url('${FONDOS_CATEGORIAS[catSeleccionada] || FONDOS_CATEGORIAS["Todas"]}')`;
+    });
+
 
 // Efecto visual al seleccionar
-$("categorySelect").addEventListener("focus", () => $("categorySelect").style.borderColor = "var(--c)");
-$("categorySelect").addEventListener("blur", () => $("categorySelect").style.borderColor = "var(--line)");
+$("categorySelect").addEventListener("focus", () => $("categorySelect").style.borderColor = 'var(--c)');
+$("categorySelect").addEventListener("blur", () => $("categorySelect").style.borderColor = 'var(--line)');
 
 $("reset").addEventListener("click", () => { progreso = {}; guardar(); pintar(); });
 $("theme").addEventListener("click", () => {
