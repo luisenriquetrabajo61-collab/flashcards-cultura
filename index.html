@@ -94,27 +94,29 @@ h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
 </head>
 <body>
 <div class="app">
-  <header>
+   <header>
     <h1>🧠 Cultura General</h1>
-    <div class="hright"><details class="blogmenu"><summary>Blog ▾</summary><div class="blogdrop"><a href="blog/index.html">📚 Todas las entradas</a><a href="blog/ciencia.html">🔬 Ciencia</a><a href="blog/historia.html">⏳ Historia</a><a href="blog/capitales.html">🏛️ Capitales</a><a href="blog/elementos-quimicos.html">🧪 Elementos químicos</a><a href="blog/geografia.html">🗺️ Geografía</a><a href="blog/arte-y-musica.html">🎨 Arte y música</a><a href="blog/cuerpo-y-salud.html">🫀 Cuerpo y salud</a><a href="blog/deportes.html">⚽ Deportes</a><a href="blog/tecnologia.html">💻 Tecnología</a><a href="blog/lengua.html">✍️ Lengua</a></div></details><button class="icon-btn" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌓</button></div>
+    <div class="hright">
+      <details class="blogmenu">
+        <summary>Blog ▾</summary>
+        <div class="blogdrop">
+          <a href="blog/index.html">📚 Todas las entradas</a>
+          <a href="blog/index.html#ciencia">🔬 Ciencia</a>
+          <a href="blog/index.html#historia">⏳ Historia</a>
+          <a href="blog/index.html#capitales">🏛️ Capitales</a>
+          <a href="blog/index.html#elementos-quimicos">🧪 Elementos químicos</a>
+          <a href="blog/index.html#geografia">🗺️ Geografía</a>
+          <a href="blog/index.html#arte-y-musica">🎨 Arte y música</a>
+          <a href="blog/index.html#cuerpo-y-salud">🫀 Cuerpo y salud</a>
+          <a href="blog/index.html#deportes">⚽ Deportes</a>
+          <a href="blog/index.html#tecnologia">💻 Tecnología</a>
+          <a href="blog/index.html#lengua">✍️ Lengua</a>
+        </div>
+      </details>
+      <button class="icon-btn" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌓</button>
+    </div>
   </header>
-  <!-- MENÚ DESPLEGABLE DE CATEGORÍAS -->
-  <div style="margin: 5px 0 10px 0;">
-    <label for="categorySelect" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--soft); margin-bottom: 6px;">Selecciona una temática:</label>
-    <select id="categorySelect" style="width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--font); font-weight: 700; font-size: 0.95rem; cursor: pointer; outline: none; transition: border-color 0.15s;">
-      <option value="Todas">🌍 Todas las temáticas (500 tarjetas)</option>
-      <option value="Historia">⏳ Historia</option>
-      <option value="Geografía">🗺️ Geografía</option>
-      <option value="Ciencia">🔬 Ciencia</option>
-      <option value="Arte y música">🎨 Arte y Música</option>
-      <option value="Cuerpo y salud">🫁 Cuerpo y Salud</option>
-      <option value="Deportes">⚽ Deportes</option>
-      <option value="Tecnología">💻 Tecnología</option>
-      <option value="Lengua">✍️ Lengua</option>
-      <option value="Capitales">🏛️ Capitales</option>
-      <option value="Elementos químicos">🧪 Elementos Químicos</option>
-    </select>
-  </div>
+
 
   <div>
     <div class="counter"><span id="count">Tarjeta 1 de 500</span><span id="stats"></span></div>
