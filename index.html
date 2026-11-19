@@ -1,17 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RKKXFW6VTV"></script>
-<script>
- window.dataLayer = window.dataLayer || []; 
-function gtag(){dataLayer.push(arguments);} 
-gtag('js', new Date()); 
-gtag('config', 'G-RKKXFW6VTV');
-</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#4338CA">
+<link rel="canonical" href="https://flashcards-cultura.vercel.app/">
 <meta name="description" content="Flashcards de cultura general para jóvenes: voltea la tarjeta, aprende y repasa.">
 <title>Cultura General · Flashcards</title>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8471523502538124"
@@ -79,6 +72,11 @@ h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
 .back .pic{background:rgba(255,255,255,.16)}
 .face.con-img .text{font-size:clamp(1.1rem,4.8vw,1.5rem)}
 
+.hright{display:flex;gap:8px;align-items:center}
+.blogmenu{position:relative}.blogmenu summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:800}
+.blogmenu summary::-webkit-details-marker{display:none}
+.blogdrop{position:absolute;right:0;top:50px;min-width:250px;z-index:30;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.blogdrop a{display:block;padding:10px 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-weight:700}.blogdrop a:hover{background:color-mix(in srgb,var(--c) 14%,transparent)}
 /* ---------- Botones ---------- */
 .btn{font:inherit;font-weight:700;min-height:50px;padding:12px 16px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:transform .12s ease,border-color .15s}
 .btn:active{transform:scale(.97)}
@@ -98,7 +96,7 @@ h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
 <div class="app">
   <header>
     <h1>🧠 Cultura General</h1>
-    <button class="icon-btn" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌓</button>
+    <div class="hright"><details class="blogmenu"><summary>Blog ▾</summary><div class="blogdrop"><a href="blog/index.html">📚 Todas las entradas</a><a href="blog/ciencia.html">🔬 Ciencia</a><a href="blog/historia.html">⏳ Historia</a><a href="blog/capitales.html">🏛️ Capitales</a><a href="blog/elementos-quimicos.html">🧪 Elementos químicos</a><a href="blog/geografia.html">🗺️ Geografía</a><a href="blog/arte-y-musica.html">🎨 Arte y música</a><a href="blog/cuerpo-y-salud.html">🫀 Cuerpo y salud</a><a href="blog/deportes.html">⚽ Deportes</a><a href="blog/tecnologia.html">💻 Tecnología</a><a href="blog/lengua.html">✍️ Lengua</a></div></details><button class="icon-btn" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌓</button></div>
   </header>
   <!-- MENÚ DESPLEGABLE DE CATEGORÍAS -->
   <div style="margin: 5px 0 10px 0;">
@@ -978,21 +976,6 @@ pintar();
 
 })();
 </script>
-    <!-- BLOQUE DE TEXTO PARA APROBACIÓN DE GOOGLE ADSENSE -->
-    <section style="max-width: 520px; margin: 30px auto; padding: 20px; background: var(--surface); border-radius: 24px; border: 1px solid var(--line); color: var(--ink); text-align: left; font-family: var(--font);">
-      <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 800;">¿Qué es Cultura General · Flashcards?</h2>
-      <p style="font-size: 0.9rem; color: var(--soft); line-height: 1.5; margin-bottom: 14px;">Esta plataforma educativa interactiva ha sido diseñada para estudiantes, opositores y entusiastas del conocimiento que buscan repasar conceptos clave de cultura general de forma dinámica. El método de tarjetas de memoria (flashcards) fomenta el recuerdo activo y optimiza el tiempo de estudio de manera eficiente.</p>
-      
-      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">Temáticas incluidas en nuestro juego de preguntas:</h3>
-      <p style="font-size: 0.9rem; color: var(--soft); line-height: 1.5; margin-bottom: 10px;">Contamos con más de 500 preguntas distribuidas en categorías fundamentales para el aprendizaje académico y la formación intelectual:</p>
-      <ul style="font-size: 0.9rem; color: var(--soft); line-height: 1.6; padding-left: 20px; margin: 0;">
-        <li><strong>Historia y Mitología:</strong> Repaso de grandes acontecimientos, imperios antiguos y fechas clave de la historia universal.</li>
-        <li><strong>Geografía y Capitales:</strong> Datos sobre ríos, montañas, países y las capitales del mundo.</li>
-        <li><strong>Ciencia y Elementos Químicos:</strong> Conceptos básicos de física, biología y la tabla periódica.</li>
-        <li><strong>Arte, Música y Lengua:</strong> Reglas gramaticales, literatura clásica y obras de arte universales.</li>
-        <li><strong>Deportes y Salud:</strong> Anatomía del cuerpo humano, hábitos saludables y datos del mundo deportivo.</li>
-      </ul>
-    </section>
-
+<script>document.addEventListener("click",function(e){var d=document.querySelector(".blogmenu");if(d&&!d.contains(e.target))d.open=false;});</script>
 </body>
 </html>
